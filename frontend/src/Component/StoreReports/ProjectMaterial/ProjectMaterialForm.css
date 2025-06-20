@@ -1,0 +1,72 @@
+.pm-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 6px;
+  font-family: "Segoe UI", sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pm-header {
+  font-weight: 600;
+  color: #0066a1;
+  margin-bottom: 15px;
+  background-color: #eaf2f8;
+  padding: 15px 15px;
+}
+
+.pm-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 15px;
+  padding: 15px 15px;
+}
+
+.pm-group {
+  flex: 1 1 160px;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+}
+
+.pm-group label {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.pm-group select {
+  padding: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.go-button-wrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.go-btn {
+  padding: 6px 18px;
+  background-color: #ffffff;
+  border: 1px solid #0b75c9;
+  color: #0b75c9;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.go-btn:hover {
+  background-color: #0b75c9;
+  color: #fff;
+}
+
+.required {
+  color: red;
+}
+.pm-title{
+  border: 1px solid #d0d7de;
+}

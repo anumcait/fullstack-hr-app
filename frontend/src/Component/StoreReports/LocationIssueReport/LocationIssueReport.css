@@ -1,0 +1,110 @@
+.lir-container {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.lir-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #007baf;
+   background-color: #eaf2f8;
+  padding: 15px 15px;
+}
+
+.lir-form {
+  background: #fff;
+  border: 1px solid #d1d1d1;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.lir-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.lir-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 15%;
+  min-width: 130px;
+}
+
+.lir-group label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.lir-group select,
+.lir-group input[type="text"],
+.lir-group input[type="date"] {
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.lir-daterange {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lir-dash {
+  padding: 0 4px;
+  font-weight: bold;
+  color: #555;
+}
+
+.lir-btn-group {
+  flex: 3;
+}
+
+.lir-type-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.lir-btn {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #00a5a5;
+  background-color: #fff;
+  color: #00a5a5;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.lir-btn.active {
+  background-color: #00a5a5;
+  color: #fff;
+}
+
+.lir-go {
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.lir-go-btn {
+  background-color: #007baf;
+  color: #fff;
+  font-size: 13px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.lir-required {
+  color: red;
+  margin-left: 2px;
+}

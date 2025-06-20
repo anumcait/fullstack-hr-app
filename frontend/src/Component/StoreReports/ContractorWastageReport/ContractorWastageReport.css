@@ -1,0 +1,86 @@
+.cwr-container {
+  border-radius: 4px;
+  padding: 15px 20px;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #fff;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.cwr-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #007baf;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+   background-color: #eaf2f8;
+  padding: 15px 15px;
+}
+
+.cwr-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  padding: 15px 15px;
+}
+
+.cwr-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 180px;
+  min-width: 180px;
+}
+
+.cwr-group label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.cwr-group select,
+.cwr-group input[type="date"],
+.cwr-group input[type="text"] {
+  padding: 5px 8px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  height: 34px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cwr-group select {
+  background-color: #fff;
+}
+
+.cwr-required {
+  color: red;
+  margin-left: 3px;
+}
+
+.cwr-go-button {
+  display: flex;
+  align-items: flex-end;
+}
+
+.cwr-go-button button {
+  background-color: #007baf;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+}
+
+.cwr-go-button button:hover {
+  background-color: #005f8c;
+}
+.cwr-main{
+     border: 1px solid #d0d7de;
+}

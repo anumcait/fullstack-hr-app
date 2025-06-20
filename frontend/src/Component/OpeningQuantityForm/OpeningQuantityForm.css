@@ -1,0 +1,97 @@
+.oq-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 20px auto;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background-color: #f9fbfc;
+  padding: 15px;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Header with title and actions */
+.oq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #d0d7de;
+}
+
+.oq-title {
+  color: #007bff;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.oq-buttons .action-btn {
+  margin-left: 8px;
+  padding: 6px 12px;
+  background-color: white;
+  border: 1px solid #007bff;
+  color: #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.oq-buttons .action-btn:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Form layout */
+.oq-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 15px;
+  align-items: flex-end;
+}
+
+/* Each input/select */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  flex: 1;
+  font-size: 14px;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.required {
+  color: red;
+  margin-left: 2px;
+}
+
+.oq-form select,
+.oq-form input[type="text"] {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: white;
+}
+
+/* GO Button */
+.btn-wrap {
+  flex: 0 0 auto;
+}
+
+.go-btn {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  height: 38px;
+}
+
+.go-btn:hover {
+  background-color: #0056b3;
+}

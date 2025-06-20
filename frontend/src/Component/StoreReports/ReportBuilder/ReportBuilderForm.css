@@ -1,0 +1,117 @@
+.report-container {
+  padding: 15px;
+  background-color: #fff;
+  /* border: 1px solid #ccc; */
+  font-family: Arial, sans-serif;
+}
+
+.report-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #007baf;
+  margin-bottom: 10px;
+      background-color: #eaf2f8;
+    padding: 15px 15px;
+}
+
+.report-form {
+  padding: 15px;
+  background: #fff;
+}
+
+.report-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 10px;
+}
+
+.report-group {
+    flex: 0 1 18%; /* Ensures equal widths */
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-group input,
+.report-group select {
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.report-group label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.required {
+  color: red;
+  margin-left: 2px;
+}
+
+.report-daterange {
+  display: flex;
+  align-items: center;
+  /* gap: 5px; */
+}
+
+.dash {
+  padding: 0 4px;
+  font-weight: bold;
+}
+
+.report-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.option-btn {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid teal;
+  color: teal;
+  background-color: #fff;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.option-btn.active {
+  background-color: teal;
+  color: #fff;
+}
+
+.report-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.export-btn,
+.download-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid #007baf;
+}
+
+.export-btn {
+  background-color: #fff;
+  color: #007baf;
+}
+
+.download-btn {
+  background-color: #007baf;
+  color: #fff;
+}
+
+.wide-button-group {
+  flex: 1 1 40%;
+}
+.report-main{
+  border: 1px solid #d0d7de;
+}

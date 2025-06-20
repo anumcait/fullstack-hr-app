@@ -1,0 +1,63 @@
+.str-container {
+  width: 100%;
+  padding: 20px;
+  background-color: #fff;
+  font-family: "Segoe UI", sans-serif;
+  box-sizing: border-box;
+  border-radius: 6px;
+}
+
+.str-header {
+  font-weight: bold;
+  color: #0073aa;
+  margin-bottom: 15px;
+  font-size: 15px;
+  background-color: #eaf2f8;
+  padding: 15px 15px;
+}
+
+.str-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+  padding: 0 15px;
+}
+
+.str-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.str-group label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.str-required {
+  color: red;
+}
+
+.str-group select,
+.str-group input[type="text"],
+.str-group input[type="date"] {
+  width: 220px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.str-go-btn {
+  padding: 8px 18px;
+  font-size: 14px;
+  background-color: #0073aa;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.str-title{
+    border: 1px solid #d0d7de;
+}

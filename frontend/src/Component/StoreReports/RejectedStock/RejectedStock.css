@@ -1,0 +1,81 @@
+.rs-container {
+  width: 100%;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 6px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.rs-header {
+  font-weight: bold;
+  font-size: 15px;
+  color: #0073aa;
+  margin-bottom: 15px;
+  background-color: #eaf2f8;
+  padding: 15px 15px;
+
+}
+
+.rs-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 15px;
+  padding: 0 15px;
+}
+
+.rs-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.rs-group label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.rs-required {
+  color: red;
+  margin-left: 2px;
+}
+
+.rs-group select,
+.rs-group input[type="text"],
+.rs-group input[type="date"] {
+  width: 220px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.rs-date-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rs-separator {
+  margin: 0 5px;
+}
+
+.rs-go-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.rs-go-btn {
+  padding: 7px 18px;
+  font-size: 14px;
+  background-color: #0073aa;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.rs-title{
+  border: 1px solid #d0d7de;
+}

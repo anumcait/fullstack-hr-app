@@ -1,0 +1,91 @@
+.contractor-container {
+  width: 100%;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+.contractor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #eaf2f8;
+  padding: 15px 15px;
+}
+
+.contractor-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #007baf;
+}
+
+.contractor-buttons button {
+  margin-left: 8px;
+  padding: 4px 12px;
+  font-size: 13px;
+  border: 1px solid #007baf;
+  background-color: #fff;
+  color: #007baf;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.contractor-form {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.contractor-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.contractor-group {
+  flex: 0 0 15%;
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.contractor-group label {
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.contractor-group select,
+.contractor-group input[type="text"],
+.contractor-group input[type="date"] {
+  padding: 6px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  width: 100%;
+  background-color: #fff;
+}
+
+.required {
+  color: red;
+  margin-left: 3px;
+}
+
+.go-btn-group {
+  /* align-self: flex-end;
+  flex: 0 0 auto; */
+  align-items: flex-start;
+  margin-top: 25px;
+}
+
+.go-button {
+  padding: 6px 12px;
+  font-size: 13px;
+  background-color: #007baf;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}

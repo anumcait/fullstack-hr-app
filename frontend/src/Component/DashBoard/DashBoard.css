@@ -1,0 +1,64 @@
+.dashboard {
+  text-align: center;
+  width: 100vw;
+  height: 100vh;
+
+}
+
+.purchase-table {
+  width: 80%;
+  margin: 20px auto;
+  border-collapse: collapse;
+}
+
+.purchase-table th, .purchase-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.purchase-table th {
+  background-color: #f2f2f2;
+}
+/* Footer stays fixed at bottom */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #53c7bd;
+  padding: 10px;
+  text-align: center;
+}
+
+.footer-icon {
+  cursor: pointer;
+  padding: 10px;
+}
+
+/* Footer content slides up when clicked */
+.footer-content {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  padding: 20px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in-out;
+  display: none;
+}
+
+.show {
+  display: block;
+  transform: translateY(0);
+}
+.footer-icon2{
+  font-size: 20px;
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 25px;
+  background-color: green;
+  color: white;
+  margin-right: 20px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}

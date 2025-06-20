@@ -1,0 +1,113 @@
+/* Container */
+ .mrn-container {
+  /* width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  font-family: "Segoe UI", sans-serif;
+  box-sizing: border-box;
+  padding: 0 20px;*/
+  background-color: #0056b3;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px 25px;
+    font-family: "Segoe UI", sans-serif;
+    box-sizing: border-box;
+} 
+
+/* .mrn-container {
+  width: 100%;
+  padding: 20px;
+  font-family: "Segoe UI", sans-serif;
+  box-sizing: border-box;
+  background-color: #fff;
+} */
+
+/* Section Wrapper */
+.mrn-section {
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background-color: #f9fbfc;
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+/* Header */
+.mrn-header {
+  background-color: #eaf2f8;
+  color: #007bff;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 10px 15px;
+  border-bottom: 1px solid #d0d7de;
+}
+
+/* Title inside header */
+.mrn-title {
+  font-size: 16px;
+}
+
+/* Form layout */
+.mrn-form {
+  /* display: flex;
+   flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px 15px; */
+  display: grid;
+  grid-template-columns: repeat(7,1fr);
+  column-gap: 10px;
+  padding: 20px 15px;
+  /* flex-wrap: wrap; */
+}
+
+/* Input groups */
+.form-group { 
+  display: flex;
+  flex-direction: column;
+  /* flex: 1 1 180px; */
+  font-size: 14px;
+}
+
+/* Labels */
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+
+
+/* Required indicator */
+.required {
+  color: red;
+  margin-left: 2px;
+}
+
+/* Inputs and selects */
+.mrn-form select,
+.mrn-form input[type="text"],
+.mrn-form input[type="date"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+}
+
+/* Button wrapper */
+.btn-wrap {
+  flex: 0 0 auto;
+}
+
+/* GO button */
+.go-btn {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  /* height: 38px; */
+}
+
+.go-btn:hover {
+  background-color: #0056b3;
+}
