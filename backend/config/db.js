@@ -1,6 +1,6 @@
 // config/db.js
 const { Sequelize } = require('sequelize');
-require('dotenv').config();
+//require('dotenv').config();
 
 const DB_DIALECT = process.env.DB_DIALECT || 'mysql';
 

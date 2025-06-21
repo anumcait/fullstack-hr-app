@@ -75,7 +75,7 @@ const [gridKey, setGridKey] = useState(Date.now());
 
     try {
       //const res = await axios.get('http://localhost:5000/api/employees');
-      const res = await axios.get('https://fullstack-hr-app.onrender.com/api/employees');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/employees`);
       setEmployeeList(res.data);
       setShowEmpPopup(true);
       setSelectedRowIndex(0);
@@ -161,7 +161,9 @@ const [gridKey, setGridKey] = useState(Date.now());
 const resetForm = async () => {
   try {
     //const res = await fetch('http://localhost:5000/api/leave/next-lno');
-    const res = await fetch('https://fullstack-hr-app.onrender.com/api/leave/next-lno');
+    //const res = await fetch('https://fullstack-hr-app.onrender.com/api/leave/next-lno');
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/leave/next-lno`);
+    
     const data = await res.json();
  
     setFormData(prev => ({
@@ -219,7 +221,9 @@ setGridKey(Date.now());
     }));
     try {
       //const res = await fetch('http://localhost:5000/api/leave/apply', {
-      const res = await fetch('https://fullstack-hr-app.onrender.com/api/leave/apply', {
+      //const res = await fetch('https://fullstack-hr-app.onrender.com/api/leave/apply', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/leave/apply`, {
+
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ application, leaveDetails: details })

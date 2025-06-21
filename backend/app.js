@@ -4,10 +4,19 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
 
 const app = express();
-
+const allowedOrigins = [
+  'http://localhost:5173', // local Vite dev server
+  'https://fullstack-hr-app-frontend.onrender.com', // deployed frontend
+];
 // Middlewares
 app.use(cors({
-  origin: 'https://fullstack-hr-app-frontend.onrender.com',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true); // allow requests with no origin (like curl or Postman) or matching origins
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
