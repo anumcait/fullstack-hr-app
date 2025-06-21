@@ -37,7 +37,8 @@ import AddEmployeeForm from "./Component/Employee/AddEmployee";
 import LeaveForm from "./Component/LeaveApplication/LeaveForm";
 import LeaveReport from "./Component/LeaveApplication/LeaveReport";
 import { ToastProvider } from "./context/ToastContext";
-import MainLayout from "./Component/Layout/mainLayout";
+import MainLayout from "./Component/Layout/MainLayout";
+
 
 function App() {
   return (
