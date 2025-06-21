@@ -6,7 +6,10 @@ const leaveRoutes = require('./routes/leaveRoutes');
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: 'https://fullstack-hr-app-frontend.onrender.com',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
