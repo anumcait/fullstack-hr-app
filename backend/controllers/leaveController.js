@@ -8,34 +8,36 @@ exports.applyLeave = async (req, res) => {
   const t = await LeaveApplication.sequelize.transaction();
 
   try {
-    // 1. Get MAX(lno) + 1 manually
+    // ✅ Step 1: Get MAX(lno) without lock
     const maxLnoResult = await LeaveApplication.findOne({
       attributes: [
         [Sequelize.fn('COALESCE', Sequelize.fn('MAX', Sequelize.col('lno')), 0), 'maxLno']
       ],
-      transaction: t,
-      lock: t.LOCK.UPDATE // ensure row-level lock during transaction
+      raw: true // 🟢 ensures plain object
     });
 
-    const nextLno = maxLnoResult.get('maxLno') + 1;
+    const nextLno = maxLnoResult.maxLno + 1;
 
-    // 2. Set lno manually in the application object
+    // ✅ Step 2: Set lno manually
     application.lno = nextLno;
 
-    // 3. Insert master record
+    // ✅ Step 3: Create master record
     const newApp = await LeaveApplication.create(application, { transaction: t });
 
-    // 4. Insert detail rows with the same lno
+    // ✅ Step 4: Insert details
     const detailsWithLno = leaveDetails.map(d => ({ ...d, lno: nextLno }));
     await LeaveDetails.bulkCreate(detailsWithLno, { transaction: t });
 
+    // ✅ Step 5: Commit transaction
     await t.commit();
     res.status(201).json({ message: 'Leave application submitted successfully.', lno: nextLno });
   } catch (error) {
     await t.rollback();
+    console.error("❌ Error in /api/leave/apply:", error);
     res.status(500).json({ message: 'Failed to submit leave application.', error });
   }
 };
+
 
 // Get next available leave application number
 exports.getNextLeaveNumber = async (req, res) => {
