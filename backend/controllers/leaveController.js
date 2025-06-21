@@ -52,20 +52,40 @@ exports.getNextLeaveNumber = async (req, res) => {
     res.status(500).json({ message: 'Failed to get next leave application number.' });
   }
 };
+// exports.getAllLeaves = async (req, res) => {
+//   try {
+//     const data = await LeaveApplication.findAll({
+//       include: [{
+//         model: LeaveDetails,
+//         as: 'leaveDetails',
+//         required: true
+//       }],
+//       order: [['lno', 'DESC']]
+//     });
+
+//      res.json(data);
+//    } catch (error) {
+//      console.error('❌ Error fetching leaves:', error);
+//      res.status(500).json({ message: 'Failed to fetch leave data.', error });
+//    }
+//  };
 exports.getAllLeaves = async (req, res) => {
   try {
-    const data = await LeaveApplication.findAll({
-      include: [{
-        model: LeaveDetails,
-        as: 'leaveDetails',
-        required: true
-      }],
+    const { empid, from, to } = req.query;
+
+    const where = {};
+    if (empid) where.empid = empid;
+    if (from && to) where.ldate = { [Op.between]: [from, to] };
+
+    const reports = await LeaveApplication.findAll({
+      where,
+      include: [{ model: LeaveDetails, as: 'leaveDetails' }],
       order: [['lno', 'DESC']]
     });
 
-     res.json(data);
-   } catch (error) {
-     console.error('❌ Error fetching leaves:', error);
-     res.status(500).json({ message: 'Failed to fetch leave data.', error });
-   }
- };
+    res.json(reports);
+  } catch (err) {
+    console.error("❌ Error in getLeaveReport:", err);
+    res.status(500).json({ message: 'Failed to fetch leave report.' });
+  }
+};

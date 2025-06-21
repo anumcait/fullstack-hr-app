@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 // import autoTable from "jspdf-autotable";
 // import * as XLSX from "xlsx";
 import "./LeaveReport.css";
+import axios from 'axios';
 
 const LeaveReport = () => {
   const [filters, setFilters] = useState({
@@ -18,23 +19,35 @@ const LeaveReport = () => {
     fetchReport();
   }, []);
 
-  const fetchReport = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/leave/report");
-      const data = await response.json();
-      setReportData(data);
-console.log("Fetched Leave Report:", data);
-      const grouped = data.reduce((acc, row) => {
-        const key = `${row.empid} - ${row.ename}`;
-        acc[key] = acc[key] || [];
-        acc[key].push(row);
-        return acc;
-      }, {});
-      setGroupedData(grouped);
-    } catch (err) {
-      console.error("Error fetching report:", err);
-    }
-  };
+const fetchReport = async () => {
+  try {
+    // const response = await fetch("http://localhost:5000/api/leave/report");
+    const response  = await axios.get(`${import.meta.env.VITE_API_URL}/api/leave/report`);
+    const data = await response.json();
+    setReportData(data);
+
+    const grouped = data.reduce((acc, application) => {
+      const key = `${application.empid} - ${application.ename}`;
+      if (!acc[key]) acc[key] = [];
+
+      application.leaveDetails.forEach(detail => {
+        acc[key].push({
+          pofl: application.pofl,
+          frmdt: detail.frmdt,
+          todate: detail.todate,
+          nod: detail.nod,
+          remarks: detail.remarks
+        });
+      });
+
+      return acc;
+    }, {});
+
+    setGroupedData(grouped);
+  } catch (err) {
+    console.error("Error fetching report:", err);
+  }
+};
 
   const handleExport = (type) => {
     const allRows = Object.entries(groupedData).flatMap(([empKey, leaves]) => {
