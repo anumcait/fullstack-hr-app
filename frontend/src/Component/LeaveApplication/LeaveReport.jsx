@@ -22,7 +22,7 @@ const LeaveReport = () => {
 const fetchReport = async () => {
   try {
     // const response = await fetch("http://localhost:5000/api/leave/report");
-    const response  = await axios.get(`${import.meta.env.VITE_API_URL}/api/leave/report`);
+    const response  = await axios.get(`${import.meta.env.VITE_API_URL}/leave/report`);
     const data = await response.json();
     setReportData(data);
 
