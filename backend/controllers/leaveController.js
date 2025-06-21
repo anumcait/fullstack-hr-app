@@ -16,7 +16,7 @@ exports.applyLeave = async (req, res) => {
       raw: true // 🟢 ensures plain object
     });
 
-    const nextLno = maxLnoResult.maxLno + 1;
+    const nextLno = Number(maxLnoResult.maxLno) + 1;
 
     // ✅ Step 2: Set lno manually
     application.lno = nextLno;
