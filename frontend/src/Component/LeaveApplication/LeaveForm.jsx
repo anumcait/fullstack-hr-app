@@ -7,6 +7,8 @@ import { useToast } from '../../context/ToastContext';
 import Header from "../Partials/Header";
 import Footer from "../Partials/Footer";
 
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+
 const databaseId = 'your-database-id';
 const collectionId = 'your-collection-id';
 
