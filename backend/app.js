@@ -5,6 +5,7 @@ const leaveRoutes = require('./routes/leaveRoutes');
 
 const app = express();
 const allowedOrigins = [
+  'http://localhost',
   'http://localhost:5173', // local Vite dev server
   'https://fullstack-hr-app-frontend.onrender.com', // deployed frontend
 ];
