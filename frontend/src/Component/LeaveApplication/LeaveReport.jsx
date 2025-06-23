@@ -22,8 +22,9 @@ const LeaveReport = () => {
 const fetchReport = async () => {
   try {
     // const response = await fetch("http://localhost:5000/api/leave/report");
+    //const data = await response.json();
     const response  = await axios.get(`${import.meta.env.VITE_API_URL}/leave/report`);
-    const data = await response.json();
+    const data = response.data;
     setReportData(data);
 
     const grouped = data.reduce((acc, application) => {
