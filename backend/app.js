@@ -6,7 +6,7 @@ const leaveRoutes = require('./routes/leaveRoutes');
 const app = express();
 const allowedOrigins = [
   'http://localhost',
-  'http://52.4.231.1', //AWS dev server
+  'http://52.4.231.1', //AWS dev
   'http://localhost:5173', // local Vite dev server
   'https://fullstack-hr-app-frontend.onrender.com', // deployed frontend
 ];
@@ -16,7 +16,6 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true); // allow requests with no origin (like curl or Postman) or matching origins
     } else {
-       console.log('❌ CORS blocked:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
