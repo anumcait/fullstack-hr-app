@@ -27,94 +27,116 @@
 
 .leave-form-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px 15px;
-  /* margin-bottom: 20px; */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 6px 4px;
+  padding: 6px;
+  box-sizing: border-box;
 }
 
 .leave-form-grid label {
   display: block;
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: #222;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .leave-form-grid input,
 .leave-form-grid select,
 .leave-form-grid textarea {
   width: 100%;
-  padding: 6px 10px;
-  font-size: 13px;
+  padding: 8px 10px;
+  font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #fcfcfc;
+  background: #fcfcfc;
   box-sizing: border-box;
-  height: 30px;
+  height: 38px;
+  transition: 0.2s ease;
 }
 
-input[type="text"],
-input[type="number"],
-input[type="date"],
-input[type="tel"],
-select,
-textarea {
-  width: 100%;
-  padding: 8px 12px;
-  font-size: 14px;
-  border-color: #007bff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fdfdfd;
-  transition: all 0.2s ease-in-out;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: #007bff;
-  background-color: #fff;
+.leave-form-grid input:focus,
+.leave-form-grid select:focus,
+.leave-form-grid textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0,123,255,0.3);
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+}
+
+textarea {
+  height: 60px;
+  resize: vertical;
 }
 
 .leave-form-grid input:disabled,
 .leave-form-grid select:disabled {
-  background-color: #eaeaea;
+  background-color: #eee;
   color: #666;
-}
-textarea {
-  height: 60px;
 }
 
 .leave-summary-box {
   border: 1px solid #ccc;
-  padding: 10px;
+  padding: 12px;
   background: #f9f9f9;
-  border-radius: 5px;
+  border-radius: 6px;
+  grid-column: span 2;
 }
 
 .summary-title {
-  font-weight: bold;
-  margin-bottom: 8px;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
+ .summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Exactly 2 columns */
+  gap: 10px;
+} 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px 15px;
-}
-
-.full-row {
-  grid-column:1/ -1;
+  grid-template-columns: max-content max-content;
+  gap: 10px 16px;
 }
 
 .total-days {
-  /* margin-top: 15px; */
+  /* margin: 16px; */
   font-weight: bold;
+  font-size: 15px;
 }
+
+.full-row {
+  grid-column: 1 / -1;
+}
+
+/* 📱 Mobile View */
+@media (max-width: 600px) {
+  .leave-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .leave-summary-box {
+    grid-column: 1;
+    margin-top: 12px;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 🧾 Tablet View */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .leave-form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .leave-summary-box {
+    grid-column: 1 / -1;
+  }
+}
+
+
 
 .save-btn-row {
   margin-top: -30px;
@@ -291,7 +313,7 @@ textarea {
   justify-content: space-between;
   align-items: center;
   background-color: #0088bb;
-  padding: 0 5px;
+  padding: 0 10px;
   border-radius: 4px;
   margin-bottom: 5px;
   border: 1px solid #bcdff1;
@@ -310,6 +332,7 @@ textarea {
   color: #FFF;
   cursor: pointer;
   transition: color 0.2s ease;
+  padding:1px 0 !important;
 }
 
 .close-btn:hover {

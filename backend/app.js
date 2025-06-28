@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const employeeRoutes = require('./routes/employeeRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
+const jasperRoutes = require('./routes/jasperRoutes');
 
 const app = express();
 const allowedOrigins = [
@@ -29,6 +30,8 @@ app.use('/api/employees', employeeRoutes);
 
 //Leave Routes
 app.use('/api/leave', leaveRoutes); // http://localhost:5000/api/leave/apply
+
+app.use('/api/jasper', jasperRoutes); 
 
 // Health check
 app.get('/', (req, res) => res.send('✅ App is running.'));

@@ -9,6 +9,7 @@ const Sidebar = () => (
       <li><NavLink to="/leave-form">Leave Application New</NavLink></li>
       <li><NavLink to="/leave-report">Leave Report</NavLink></li>
       <li><NavLink to="/employees">Employee Report</NavLink></li>
+      <li><NavLink to="/onduty">Onduty</NavLink></li>
       {/* Add more links as needed */}
     </ul>
   </aside>

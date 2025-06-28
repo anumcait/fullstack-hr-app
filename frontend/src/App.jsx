@@ -38,6 +38,9 @@ import LeaveForm from "./Component/LeaveApplication/LeaveForm";
 import LeaveReport from "./Component/LeaveApplication/LeaveReport";
 import { ToastProvider } from "./context/ToastContext";
 import MainLayout from "./Component/Layout/MainLayout";
+// import OnDutyForm from "./Component/onduty/OnDutyForm";
+import OnDutyPreview from "./Component/onduty/OnDutyPreview";
+import OnDutyDashboard from "./Component/onduty/OnDutyDashboard";
 
 
 function App() {
@@ -52,11 +55,16 @@ function App() {
         {/* <Route path="/" element={<LoginForm />} /> */}
         <Route element={<MainLayout />}>
         <Route path="/" element={<DashBoard/>} />
+
         
         <Route path="/leave-form" element={<LeaveForm />} />
         <Route path="/leave-report" element={<LeaveReport />} />
         <Route path="/employees" element={<EmployeeReportForm />} />
         <Route path="/add-employee" element={<AddEmployeeForm />} />
+
+        <Route path="/onduty" element={<OnDutyDashboard />} />
+        {/* <Route path="/onduty" element={<OnDutyForm />} /> */}
+        <Route path="/onduty-preview" element={<OnDutyPreview />} />
 
         <Route path="/dashboard" element={<DashBoard />} />
         <Route path="/quality-approval" element={<QualityApprovalForm />} />

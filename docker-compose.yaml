@@ -23,8 +23,6 @@ services:
     ports:
       - "80:80"
     networks:
-      - hr-network
-
 networks:
   hr-network:
     driver: bridge

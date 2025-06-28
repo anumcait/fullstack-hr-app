@@ -4,6 +4,14 @@ import LeaveGrid from './LeaveGrid';
 import './LeaveApplication.css';
 import axios from 'axios';
 import { useToast } from '../../context/ToastContext';
+import {
+  Box, Grid, Typography, TextField, MenuItem, Button, Paper, IconButton, Select, InputLabel, FormControl, Dialog, DialogTitle, DialogContent, Table, TableHead, TableRow, TableCell, TableBody
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import AddIcon from '@mui/icons-material/Add';
+import SaveIcon from '@mui/icons-material/Save';
+import Stack from '@mui/material/Stack';
 import Header from "../Partials/Header";
 import Footer from "../Partials/Footer";
 
@@ -287,7 +295,7 @@ setGridKey(Date.now());
         <button className="close-btn" onClick={handleClose}>✖</button>
       </div>
 
-      <div className="leave-form-grid">
+      <div className="leave-form-grid" style={{ overflow: 'auto' }}>
         <div><label>LApp No</label><input value={formData.lappNo} disabled /></div>
         <div><label>Date</label><input value={formData.date} disabled /></div>
         <div><label>Emp Id</label>
@@ -405,6 +413,7 @@ setGridKey(Date.now());
         type={toast.type}
         onClose={() => setToast({ message: '', type: '' })}
       /> */}
+
     </div>
 
   );

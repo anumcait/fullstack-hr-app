@@ -1,3 +1,249 @@
+// import React, { useState, useEffect, useRef } from 'react';
+// import {
+//   Table, TableBody, TableCell, TableHead, TableRow,
+//   IconButton, Select, MenuItem, TextField, Button,
+//   Dialog, DialogActions, DialogContent, DialogTitle,
+//   Typography, Box
+// } from '@mui/material';
+// import { Delete, RestartAlt } from '@mui/icons-material';
+// import { useToast } from '../../context/ToastContext';
+
+// const LeaveGrid = ({ leaveDetails, setLeaveDetails, onValidationError }) => {
+//   const { showToast } = useToast();
+//   const [rows, setRows] = useState([{ dayType: 'FULL DAY', fromDate: '', toDate: '', noOfDays: '', remarks: '' }]);
+//   const inputRefs = useRef([]);
+//   const [overlapModal, setOverlapModal] = useState({ show: false, conflicts: [] });
+//   const [confirmModal, setConfirmModal] = useState({ show: false, index: null });
+//   const [overlapIndexes, setOverlapIndexes] = useState([]);
+
+//   const getBlankRow = () => ({ dayType: 'FULL DAY', fromDate: '', toDate: '', noOfDays: '', remarks: '' });
+
+//   const isRowValid = (row) => row.dayType && row.fromDate && row.toDate;
+//   const isRowEdited = (row) => row.fromDate || row.toDate || row.noOfDays || row.remarks;
+
+//   const addRow = () => {
+//     if (rows.length >= 5) {
+//       showToast('Only 5 rows allowed', 'error');
+//       return;
+//     }
+//     const lastRow = rows[rows.length - 1];
+//     if (!isRowValid(lastRow)) {
+//       showToast('Please complete the current row first', 'error');
+//       return;
+//     }
+//     setRows((prev) => [...prev, getBlankRow()]);
+//   };
+
+//   const resetRow = (index) => {
+//     const updated = [...rows];
+//     updated[index] = getBlankRow();
+//     setRows(updated);
+//     showToast('Row reset', 'info');
+//   };
+
+//   const deleteRow = (index) => {
+//     if (isRowEdited(rows[index])) {
+//       setConfirmModal({ show: true, index });
+//     } else {
+//       performDelete(index);
+//     }
+//   };
+
+//   const performDelete = (index) => {
+//     const updated = rows.filter((_, i) => i !== index);
+//     if (!updated.length) updated.push(getBlankRow());
+//     setRows(updated);
+//     setConfirmModal({ show: false, index: null });
+//     showToast('Row deleted', 'info');
+//   };
+
+//   const updateRow = (index, field, value) => {
+//     const updated = [...rows];
+//     updated[index][field] = value;
+
+//     const row = updated[index];
+//     const from = new Date(row.fromDate);
+//     const to = new Date(row.toDate);
+
+//     if (['fromDate', 'toDate', 'dayType'].includes(field)) {
+//       if (!isNaN(from) && !isNaN(to) && from <= to) {
+//         let diff = Math.ceil((to - from) / (1000 * 60 * 60 * 24)) + 1;
+//         if (row.dayType === 'HALF DAY') diff *= 0.5;
+//         updated[index].noOfDays = diff;
+//       } else {
+//         updated[index].noOfDays = '';
+//       }
+//     }
+
+//     setRows(updated);
+//   };
+
+//   const checkOverlap = (rows) => {
+//     const conflicts = [], indexes = new Set();
+//     for (let i = 0; i < rows.length; i++) {
+//       const a = rows[i];
+//       if (!a.fromDate || !a.toDate) continue;
+//       const fromA = new Date(a.fromDate);
+//       const toA = new Date(a.toDate);
+//       for (let j = i + 1; j < rows.length; j++) {
+//         const b = rows[j];
+//         if (!b.fromDate || !b.toDate) continue;
+//         const fromB = new Date(b.fromDate);
+//         const toB = new Date(b.toDate);
+//         if (fromA <= toB && toA >= fromB) {
+//           conflicts.push(`Row ${i + 1} and Row ${j + 1} are overlapping`);
+//           indexes.add(i); indexes.add(j);
+//         }
+//       }
+//     }
+//     return { conflicts, indexes: [...indexes] };
+//   };
+
+//   useEffect(() => {
+//     setLeaveDetails(rows);
+//     const { conflicts, indexes } = checkOverlap(rows);
+//     setOverlapIndexes(indexes);
+//     if (onValidationError) onValidationError(indexes.length > 0);
+//     setOverlapModal({ show: conflicts.length > 0, conflicts });
+//   }, [rows]);
+
+//   useEffect(() => {
+//     const handleKeys = (e) => {
+//       if (e.ctrlKey && e.key.toLowerCase() === 'a') {
+//         e.preventDefault();
+//         addRow();
+//       }
+//       if (e.ctrlKey && e.key.toLowerCase() === 'd') {
+//         e.preventDefault();
+//         if (rows.length > 1) deleteRow(rows.length - 1);
+//       }
+//     };
+//     window.addEventListener('keydown', handleKeys);
+//     return () => window.removeEventListener('keydown', handleKeys);
+//   }, [rows]);
+
+//   return (
+//     <Box>
+//       <Table size="small" sx={{ border: '1px solid #ccc', mt: 1 }}>
+//         <TableHead sx={{ backgroundColor: '#f0f0f0' }}>
+//           <TableRow>
+//             <TableCell>#</TableCell>
+//             <TableCell>Day Type</TableCell>
+//             <TableCell>From</TableCell>
+//             <TableCell>To</TableCell>
+//             <TableCell>No. of Days</TableCell>
+//             <TableCell>Remarks</TableCell>
+//             <TableCell>Action</TableCell>
+//           </TableRow>
+//         </TableHead>
+//         <TableBody>
+//           {rows.map((row, i) => (
+//             <TableRow
+//               key={i}
+//               sx={{
+//                 backgroundColor: overlapIndexes.includes(i) ? '#ffebee' : isRowEdited(row) ? '#fffde7' : 'inherit'
+//               }}
+//             >
+//               <TableCell>{i + 1}</TableCell>
+//               <TableCell>
+//                 <Select
+//                   value={row.dayType}
+//                   onChange={(e) => updateRow(i, 'dayType', e.target.value)}
+//                   size="small"
+//                   fullWidth
+//                 >
+//                   <MenuItem value="FULL DAY">FULL DAY</MenuItem>
+//                   <MenuItem value="HALF DAY">HALF DAY</MenuItem>
+//                 </Select>
+//               </TableCell>
+//               <TableCell>
+//                 <TextField
+//                   type="date"
+//                   size="small"
+//                   value={row.fromDate}
+//                   onChange={(e) => updateRow(i, 'fromDate', e.target.value)}
+//                   fullWidth
+//                 />
+//               </TableCell>
+//               <TableCell>
+//                 <TextField
+//                   type="date"
+//                   size="small"
+//                   value={row.toDate}
+//                   onChange={(e) => updateRow(i, 'toDate', e.target.value)}
+//                   fullWidth
+//                 />
+//               </TableCell>
+//               <TableCell>
+//                 <TextField
+//                   type="number"
+//                   size="small"
+//                   value={row.noOfDays}
+//                   onChange={(e) => updateRow(i, 'noOfDays', e.target.value)}
+//                   fullWidth
+//                 />
+//               </TableCell>
+//               <TableCell>
+//                 <TextField
+//                   size="small"
+//                   value={row.remarks}
+//                   onChange={(e) => updateRow(i, 'remarks', e.target.value)}
+//                   fullWidth
+//                 />
+//               </TableCell>
+//               <TableCell>
+//                 <IconButton color="error" onClick={() => deleteRow(i)}>
+//                   <Delete />
+//                 </IconButton>
+//                 <IconButton color="primary" onClick={() => resetRow(i)} disabled={!isRowEdited(row)}>
+//                   <RestartAlt />
+//                 </IconButton>
+//               </TableCell>
+//             </TableRow>
+//           ))}
+//         </TableBody>
+//       </Table>
+
+//       <Button
+//         variant="outlined"
+//         onClick={addRow}
+//         sx={{ mt: 1 }}
+//         disabled={rows.length >= 5}
+//       >
+//         + Add Row (Ctrl+A)
+//       </Button>
+
+//       {/* Confirm Delete Modal */}
+//       <Dialog open={confirmModal.show} onClose={() => setConfirmModal({ show: false, index: null })}>
+//         <DialogTitle>Confirm Delete</DialogTitle>
+//         <DialogContent>
+//           <Typography>This row has data. Are you sure you want to delete it?</Typography>
+//         </DialogContent>
+//         <DialogActions>
+//           <Button onClick={() => performDelete(confirmModal.index)} color="error">Yes</Button>
+//           <Button onClick={() => setConfirmModal({ show: false, index: null })}>Cancel</Button>
+//         </DialogActions>
+//       </Dialog>
+
+//       {/* Overlap Warning Modal */}
+//       <Dialog open={overlapModal.show} onClose={() => setOverlapModal({ show: false, conflicts: [] })}>
+//         <DialogTitle>⚠️ Overlapping Dates</DialogTitle>
+//         <DialogContent>
+//           {overlapModal.conflicts.map((msg, i) => (
+//             <Typography key={i}>{msg}</Typography>
+//           ))}
+//         </DialogContent>
+//         <DialogActions>
+//           <Button onClick={() => setOverlapModal({ show: false, conflicts: [] })}>Close</Button>
+//         </DialogActions>
+//       </Dialog>
+//     </Box>
+//   );
+// };
+
+// export default LeaveGrid;
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useToast } from '../../context/ToastContext';
 
