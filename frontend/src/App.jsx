@@ -41,6 +41,7 @@ import MainLayout from "./Component/Layout/MainLayout";
 // import OnDutyForm from "./Component/onduty/OnDutyForm";
 import OnDutyPreview from "./Component/onduty/OnDutyPreview";
 import OnDutyDashboard from "./Component/onduty/OnDutyDashboard";
+import EditItem from "./Component/ItemMaster/EditItem";
 
 
 function App() {
@@ -65,6 +66,8 @@ function App() {
         <Route path="/onduty" element={<OnDutyDashboard />} />
         {/* <Route path="/onduty" element={<OnDutyForm />} /> */}
         <Route path="/onduty-preview" element={<OnDutyPreview />} />
+
+        <Route path="/edit-item" element={<EditItem />} />
 
         <Route path="/dashboard" element={<DashBoard />} />
         <Route path="/quality-approval" element={<QualityApprovalForm />} />

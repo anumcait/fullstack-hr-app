@@ -64,7 +64,7 @@
   text-decoration: underline;
 }
 .preview-icon-cell {
-  display: flex;
+  /* display: flex; */
   justify-content: center;
   align-items: center;
   padding: 10px;
@@ -94,10 +94,10 @@
   padding-right: 10px;
   margin-top: 4px;
 }
- .preview-icon-cell {
+  .preview-icon-cell {
     padding: 6px;
-    height: 40px;
-  }
+    height: 10px;
+  } 
 
   .preview-icon-cell a svg {
     width: 16px;

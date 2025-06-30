@@ -10,6 +10,7 @@ const Sidebar = () => (
       <li><NavLink to="/leave-report">Leave Report</NavLink></li>
       <li><NavLink to="/employees">Employee Report</NavLink></li>
       <li><NavLink to="/onduty">Onduty</NavLink></li>
+      <li><NavLink to="/edit-item">Item</NavLink></li>
       {/* Add more links as needed */}
     </ul>
   </aside>

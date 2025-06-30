@@ -1,105 +1,40 @@
-*{
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 16px;
-}
-
-
 .onduty-container {
-  background: white;
-  padding: 20px 30px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 1100px;
-  margin: 30px auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-  color:#222;
+  background: #fff;
+  padding: 16px;
+  border-radius: 4px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Roboto', sans-serif;
 }
 
 .onduty-header {
-  background: #0088bb;
-  color: white;
-  padding: 10px 15px;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 5px 5px 0 0;
-  margin-bottom: 20px;
-}
-
-
-
-.onduty-form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 6px 4px;
-  padding: 6px;
-  box-sizing: border-box;
-}
-
-.onduty-form-grid label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 4px;
-}
-
-.onduty-form-grid input,
-.onduty-form-grid textarea {
-  width: 100%;
-  padding: 8px 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #fcfcfc;
-  box-sizing: border-box;
-  height: 38px;
-  transition: 0.2s ease;
-}
-
-
-.save-btn {
-  padding: 8px 16px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.form-header {
-  color:#FFF;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #0088bb;
-  padding: 0 10px;
-  border-radius: 4px;
-  margin-bottom: 5px;
-  border: 1px solid #bcdff1;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
 }
 
-.form-header h2 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+.onduty-header h2 {
+  font-size: 1.25rem;
+  color: #1976d2;
+  display: flex;
+  align-items: center;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: #FFF;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  padding:1px 0 !important;
+.onduty-form {
+  padding-top: 8px;
 }
 
-.close-btn:hover {
-  color: #d33;
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
-@media (max-width: 768px) {
-  .onduty-form-grid {
-    grid-template-columns: 1fr;
-  }
+.form-row label {
+  width: 120px;
+  font-size: 0.875rem;
+  margin-right: 8px;
+  white-space: nowrap;
 }
