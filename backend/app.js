@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const employeeRoutes = require('./routes/employeeRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
+const ondutyRoutes = require('./routes/ondutyRoutes');
 const jasperRoutes = require('./routes/jasperRoutes');
 
 const app = express();
@@ -30,6 +31,9 @@ app.use('/api/employees', employeeRoutes);
 
 //Leave Routes
 app.use('/api/leave', leaveRoutes); // http://localhost:5000/api/leave/apply
+
+//onduty Routes
+app.use('/api/onduty', ondutyRoutes); 
 
 app.use('/api/jasper', jasperRoutes); 
 

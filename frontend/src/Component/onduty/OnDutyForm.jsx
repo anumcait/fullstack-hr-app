@@ -1,45 +1,30 @@
-
 import React, { useState, useEffect } from 'react';
 import {
-  TextField,
-  Paper,
-  Typography,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
-  Grid,
-  Box
+  TextField, Typography, Button, FormControl, InputLabel, Select,
+  MenuItem, Dialog, DialogTitle, DialogContent, IconButton, Grid, Box
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import './onDutyForm.css';
 import axios from 'axios';
 import OnDutyPreview from './OnDutyPreview';
+import SearchIcon from '@mui/icons-material/Search';
 
 const OnDutyForm = () => {
-   const getCurrentISTDateTime = () => {
-  const nowUTC = new Date(Date.now()); // system time in UTC-based timestamp
-  const istDate = new Date(nowUTC.getTime() );
+  const getCurrentISTDateTime = () => {
+    const nowUTC = new Date(Date.now());
+    const istDate = new Date(nowUTC.getTime());
+    const yyyy = istDate.getFullYear();
+    const mm = String(istDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(istDate.getDate()).padStart(2, '0');
+    const hh = String(istDate.getHours()).padStart(2, '0');
+    const min = String(istDate.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  };
 
-  // Format as "YYYY-MM-DDTHH:mm" for <input type="datetime-local">
-  const yyyy = istDate.getFullYear();
-  const mm = String(istDate.getMonth() + 1).padStart(2, '0');
-  const dd = String(istDate.getDate()).padStart(2, '0');
-  const hh = String(istDate.getHours()).padStart(2, '0');
-  const min = String(istDate.getMinutes()).padStart(2, '0');
-
-  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-};
   const [formData, setFormData] = useState({
-    movement_id: '',
-     movement_date: getCurrentISTDateTime(),
+    movement_id: '1',
+    movement_date: getCurrentISTDateTime(),
     empid: '',
     ename: '',
     unit: '',
@@ -61,7 +46,6 @@ const OnDutyForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-
   const handleTimeChange = () => {
     if (formData.perm_ftime && formData.perm_ttime) {
       const from = new Date(`1970-01-01T${formData.perm_ftime}`);
@@ -73,7 +57,21 @@ const OnDutyForm = () => {
 
   useEffect(() => {
     handleTimeChange();
+
   }, [formData.perm_ftime, formData.perm_ttime]);
+
+//   useEffect(() => {
+//   const fetchNextId = async () => {
+//     try {
+//       const res = await axios.get(`${import.meta.env.VITE_API_URL}/onduty/next-id`);
+//       setFormData((prev) => ({ ...prev, movement_id: res.data.nextMovementId }));
+//     } catch (err) {
+//       console.error('Failed to fetch next movement ID', err);
+//     }
+//   };
+
+//   fetchNextId();
+// }, []);
 
   const openEmpPopup = async () => {
     const mockData = [
@@ -85,14 +83,14 @@ const OnDutyForm = () => {
   };
 
   const selectEmployee = (emp) => {
-    setFormData((prev) => ({
-      ...prev,
+    setFormData({
+      ...formData,
       empid: emp.empid,
       ename: emp.ename,
       unit: emp.unit,
       division: emp.division,
       designation: emp.designation
-    }));
+    });
     setShowEmpPopup(false);
   };
 
@@ -116,327 +114,192 @@ const OnDutyForm = () => {
     }
   };
 
+  const saveOnDuty = async () => {
+  try {
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/onduty/save`, formData);
+// console.log('Payload to be saved:', formData);
+    if (response.status === 201) {
+      //toast.success(`Saved successfully. ID: ${res.data.movement_id}`);
+       alert(`Saved successfully. ID: ${response.data.movement_id}`);
+      // Optionally reset or fetch a new form
+    } else {
+      alert('Failed to save');
+    }
+  } catch (err) {
+    console.error('Save error:', err);
+    alert('Error saving On Duty application');
+  }
+};
   return (
     <>
       {!showPreview && (
-           
         <div className="onduty-container">
-         <Paper elevation={3}>
-  <div className="form-header">
-    <Typography variant="h6">On Duty Permission Form</Typography>
-    <button className="close-btn">✖</button>
-  </div>
-  <Box className="onduty-container">
-      <div className="onduty-header">
-        <h2>On Duty Permission</h2>
-        <div>
-          <Button variant="contained" color="primary">Save</Button>
-        </div>
-      </div>
-
-      <Grid container spacing={2} className="onduty-form">
-        {/* Row 1: App No & Entry Date */}
-        <Grid item xs={12} md={6}>
-          <div className="form-row">
-            <label>App No</label>
-            <TextField size="small" fullWidth disabled value={formData.movement_id} />
+          <div className="form-header">
+            <Typography variant="h6">On Duty Permission Form</Typography>
+            <button className="close-btn">✖</button>
           </div>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <div className="form-row">
-            <label>Entry Date</label>
-            <TextField size="small" fullWidth disabled type="datetime-local" value={formData.movement_date} />
+
+          <Box className="onduty-container">
+            <div className="onduty-header">
+              <h2>On Duty Permission</h2>
+              {/* <Button variant="contained" color="primary">Save</Button> */}
+               {/* Buttons */}
+          <div className="action-buttons">
+            <Button variant="contained" color="primary" onClick={previewPermissionReport} style={{ marginRight: '10px' }}>
+              Preview Report
+            </Button>
+            {/* <Button variant="contained" color="primary">Save</Button> */}
+            <Button variant="contained" color="primary" onClick={saveOnDuty}>Save</Button>
+            <Button variant="contained" color="primary" onClick={() => setShowPreview(true)} style={{ marginLeft: '10px' }}>
+              Custom Preview
+            </Button>
           </div>
-        </Grid>
-
-        {/* Row 2: Emp Details */}
-        <Grid item xs={12} md={3}>
-          <div className="form-row">
-            <label>Emp ID</label>
-            <TextField
-              size="small"
-              fullWidth
-              value={formData.empid}
-              InputProps={{ endAdornment: <MoreVertIcon /> }}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <div className="form-row">
-            <label>Name</label>
-            <TextField size="small" fullWidth disabled value={formData.ename} />
-          </div>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <div className="form-row">
-            <label>Unit</label>
-            <TextField size="small" fullWidth disabled value={formData.unit} />
-          </div>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <div className="form-row">
-            <label>Division</label>
-            <TextField size="small" fullWidth disabled value={formData.division} />
-          </div>
-        </Grid>
-
-        {/* Row 3: Designation, Act Date, Shift */}
-        <Grid item xs={12} md={4}>
-          <div className="form-row">
-            <label>Designation</label>
-            <TextField size="small" fullWidth disabled value={formData.designation} />
-          </div>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <div className="form-row">
-            <label>Movement Date</label>
-            <TextField name="act_date" type="date" value={formData.act_date} onChange={handleChange} size="small" fullWidth />
-          </div>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <div className="form-row">
-            <label>Shift</label>
-            <FormControl size="small" fullWidth>
-              <InputLabel>Shift</InputLabel>
-              <Select name="shift" value={formData.shift} onChange={handleChange}>
-                <MenuItem value="A">A</MenuItem>
-                <MenuItem value="B">B</MenuItem>
-                <MenuItem value="C">C</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-        </Grid>
-
-        {/* Row 4: Time & Reason */}
-        <Grid item xs={12} md={3}>
-          <div className="form-row">
-            <label>From Time</label>
-            <TextField type="time" name="perm_ftime" value={formData.perm_ftime} onChange={handleChange} size="small" fullWidth />
-          </div>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <div className="form-row">
-            <label>To Time</label>
-            <TextField type="time" name="perm_ttime" value={formData.perm_ttime} onChange={handleChange} size="small" fullWidth />
-          </div>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <div className="form-row">
-            <label>No of Hours</label>
-            <TextField size="small" fullWidth disabled value={formData.no_of_hrs} />
-          </div>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <div className="form-row">
-            <label>Reason</label>
-            <TextField name="reason_perm" value={formData.reason_perm} onChange={handleChange} size="small" fullWidth multiline rows={2} />
-          </div>
-        </Grid>
-      </Grid>
-    </Box>
-  <Grid container spacing={0} className="onduty-grid">
-    {/* Row 1: App No & Entry Date */}
-    <Grid item xs={12} md={6}>
-      <div className="form-row">
-        <label>App No</label>
-        <TextField value={formData.movement_id} disabled fullWidth size="small" />
-         <label>Entry Date</label>
-        <TextField
-          value={formData.movement_date}
-          type="datetime-local"
-          fullWidth
-          size="small"
-          disabled
-        />
-      </div>
-    </Grid>
-
-    {/* Row 2: Emp ID, Name, Unit, Division */}
-    <Grid item xs={12} md={3}>
-    <div className="form-row">
-        <label>Emp ID</label>
-        <TextField
-          value={formData.empid}
-          fullWidth
-          size="small"
-          onClick={openEmpPopup}
-          InputProps={{ endAdornment: <MoreVertIcon /> }}
-        />
-
-
-
-
-        <label>Name</label>
-        <TextField value={formData.ename} disabled fullWidth size="small" />
-
-
-
-
-        <label>Unit</label>
-        <TextField value={formData.unit} disabled fullWidth size="small" />
-
-
-
-
-        <label>Division</label>
-        <TextField value={formData.division} disabled fullWidth size="small" />
-</div>
-    </Grid>
-
-    {/* Row 3: Designation, Act Date, Shift */}
-    <Grid item xs={6} md={6}>
-      <div className="form-row">
-        <label>Designation</label>
-        <TextField value={formData.designation} disabled fullWidth size="small" />
-    
-
-
-        <label>Movement Date</label>
-        <TextField
-          name="act_date"
-          type="date"
-          value={formData.act_date}
-          onChange={handleChange}
-          fullWidth
-          size="small"
-        />
- 
- 
-
-
-        <label>Shift</label>
-        <FormControl fullWidth size="small">
-          <InputLabel>Shift</InputLabel>
-          <Select name="shift" value={formData.shift} onChange={handleChange}>
-            <MenuItem value="A">A</MenuItem>
-            <MenuItem value="B">B</MenuItem>
-            <MenuItem value="C">C</MenuItem>
-          </Select>
-        </FormControl>
-</div>
-    </Grid>
-
-    {/* Row 4: From Time, To Time, No of Hours, Reason */}
-    <Grid item xs={12} md={3}>
-      <div className="form-row">
-        <label>From Time</label>
-        <TextField
-          type="time"
-          name="perm_ftime"
-          value={formData.perm_ftime}
-          onChange={handleChange}
-          fullWidth
-          size="small"
-        />
-      </div>
-    </Grid>
-    <Grid item xs={12} md={3}>
-      <div className="form-row">
-        <label>To Time</label>
-        <TextField
-          type="time"
-          name="perm_ttime"
-          value={formData.perm_ttime}
-          onChange={handleChange}
-          fullWidth
-          size="small"
-        />
-      </div>
-    </Grid>
-    <Grid item xs={12} md={3}>
-      <div className="form-row">
-        <label>No of Hours</label>
-        <TextField value={formData.no_of_hrs} fullWidth size="small" disabled />
-      </div>
-    </Grid>
-    <Grid item xs={12} md={3}>
-      <div className="form-row">
-        <label>Reason</label>
-        <TextField
-          name="reason_perm"
-          value={formData.reason_perm}
-          onChange={handleChange}
-          fullWidth
-          multiline
-          rows={2}
-          size="small"
-        />
-      </div>
-    </Grid>
-  </Grid>
-
-  {/* Row 5: Buttons */}
-  <div className="action-buttons">
-    <Button variant="contained" color="primary" onClick={previewPermissionReport} style={{ marginRight: '10px' }}>
-      Preview Report
-    </Button>
-    <Button variant="contained" color="primary">Save</Button>
-    <Button variant="contained" color="primary" onClick={() => setShowPreview(true)} style={{ marginLeft: '10px' }}>
-      Custom Preview
-    </Button>
-  </div>
-</Paper>
-
-
-          <Paper elevation={3} className="onduty-paper">
-            <div className="form-header">
-              <Typography variant="h6">On Duty Permission Form</Typography>
-              <button className="close-btn">✖</button>
             </div>
-            <Grid container spacing={1} className="onduty-form-grid">
-  <Grid item xs={12} md={6} className="onduty-form-row">
-    <label>App No</label><TextField value={formData.movement_id} disabled fullWidth size="small" />
-    <label>Date</label>
-    <TextField
-      value={formData.movement_date}
-      type="datetime-local"
-      fullWidth
-      size="small"
-      disabled
-    />
-      
-  </Grid>
-  <Grid item xs={12} md={6} className="onduty-form-row">
-    <label>Emp ID</label><TextField value={formData.empid} fullWidth size="small" onClick={openEmpPopup} InputProps={{ endAdornment: <MoreVertIcon /> }} />
-<label>Name</label><TextField value={formData.ename} fullWidth size="small" disabled />
-<label>Unit</label><TextField value={formData.unit} fullWidth size="small" disabled />
-<label>Division</label><TextField value={formData.division} fullWidth size="small" disabled />
 
-  </Grid>
-   <Grid item xs={12} md={6} className="onduty-form-row">
-  <label>Designation</label><TextField value={formData.designation} fullWidth size="small" disabled />
-  <label>Date</label><TextField value={formData.act_date} type="date" fullWidth size="small" />
-  <label>Shift</label>
-              <FormControl fullWidth size="small">
-                <InputLabel>Shift</InputLabel>
-                <Select name="shift" value={formData.shift} onChange={handleChange}>
-                  <MenuItem value="A">A</MenuItem>
-                  <MenuItem value="B">B</MenuItem>
-                  <MenuItem value="C">C</MenuItem>
-                </Select>
-              </FormControl>
+            <Grid container spacing={2} className="onduty-form">
+              {/* Row 1 */}
+              <Grid item xs={12} md={6}>
+                <div className="form-row">
+                  <label>App No</label>
+                  <TextField size="small" fullWidth disabled value={formData.movement_id} />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <div className="form-row">
+                  <label>Entry Date</label>
+                  <TextField size="small" fullWidth disabled type="datetime-local" value={formData.movement_date} />
+                </div>
+              </Grid>
 
-  </Grid>
-  <Grid item xs={12} md={6} className="onduty-form-row">
-  <label>From Time</label><TextField type="time" name="perm_ftime" value={formData.perm_ftime} onChange={handleChange} fullWidth size="small" />
-            <label>To Time</label><TextField type="time" name="perm_ttime" value={formData.perm_ttime} onChange={handleChange} fullWidth size="small" />
-            <label>No of Hours</label><TextField value={formData.no_of_hrs} fullWidth size="small" disabled />
-            <label>Reason</label><TextField name="reason_perm" value={formData.reason_perm} onChange={handleChange} fullWidth multiline rows={2} size="small" />
-</Grid>
-  <div className="action-buttons">
-              <Button variant="contained" color="primary" onClick={previewPermissionReport} style={{ marginRight: '10px' }}>
-                Preview Report
-              </Button>
-              <Button variant="contained" color="primary">Save</Button>
-              <Button variant="contained" color="primary" onClick={() => setShowPreview(true)} style={{ marginLeft: '10px' }}>
-                Custom Preview
-              </Button>
-            </div>
-</Grid>
+              {/* Row 2 */}
+              <Grid item xs={12} md={3}>
+                <div className="form-row">
+                   <label>Emp ID</label>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    value={formData.empid}
+                    onClick={openEmpPopup}
+                    InputProps={{ endAdornment: <SearchIcon style={{ cursor: 'pointer', size:'small' }} /> }}
+                  /> 
+                   
+                 {/* <label>Emp Id</label>
+                   <div className="combo-box">
+              <div className="combo-section combo-input-section">
+                <input type="text" className="combo-input" value={formData.empid} readOnly />
+              </div>
+              <div className="combo-section combo-icon-section" onClick={() => openEmpPopup(true)}>
+                <SearchIcon fontSize="small" />
+              </div>
+              
+            </div> */}
+ 
+                </div>
+              
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <div className="form-row">
+                  <label>Name</label>
+                  <TextField size="small" fullWidth disabled value={formData.ename} />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <div className="form-row">
+                  <label>Unit</label>
+                  <TextField size="small" fullWidth disabled value={formData.unit} />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <div className="form-row">
+                  <label>Division</label>
+                  <TextField size="small" fullWidth disabled value={formData.division} />
+                </div>
+              </Grid>
 
-          </Paper>
-          
+              {/* Row 3 */}
+              <Grid item xs={12} md={4}>
+                <div className="form-row">
+                  <label>Designation</label>
+                  <TextField size="small" fullWidth disabled value={formData.designation} />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <div className="form-row">
+                  <label>Movement Date</label>
+                  <TextField name="act_date" type="date" value={formData.act_date} onChange={handleChange} size="small" fullWidth />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <div className="form-row">
+                  <label>Shift</label>
+                  <FormControl size="small" fullWidth>
+                    {/* <InputLabel>Shift</InputLabel> */}
+                    <Select name="shift" value={formData.shift} onChange={handleChange}>
+                      <MenuItem value="A">A</MenuItem>
+                      <MenuItem value="B">B</MenuItem>
+                      <MenuItem value="C">C</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+              </Grid>
 
+              {/* Row 4 */}
+              <Grid item xs={12} md={3}>
+                <div className="form-row">
+                  <label>From Time</label>
+                  <TextField type="time" name="perm_ftime" value={formData.perm_ftime} onChange={handleChange} size="small" fullWidth />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <div className="form-row">
+                  <label>To Time</label>
+                  <TextField type="time" name="perm_ttime" value={formData.perm_ttime} onChange={handleChange} size="small" fullWidth />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <div className="form-row">
+                  <label>No of Hours</label>
+                  <TextField size="small" fullWidth disabled value={formData.no_of_hrs} />
+                </div>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <div className="form-row">
+                  <label>Reason</label>
+                  {/* <TextField name="reason_perm" value={formData.reason_perm} onChange={handleChange} size="small" fullWidth multiline rows={2} /> */}
+       
+                           
+                       <TextField
+                                    //  label="Item Description"
+                                   //   label="Item Description"
+                                     multiline
+                                     rows={2}
+                                     fullWidth
+                                     variant='outlined'
+                                     size="small"
+                                     width="100%"
+                                     sx={{ minWidth: 300 }}
+                                     InputProps={{
+                                       sx: {
+                                         padding: 0,
+                                         '& textarea': {
+                                           padding: '8px',
+                                           fontSize: '0.875rem',
+                                           backgroundColor: 'transparent',
+                                           resize: 'none'
+                                         }
+                                       }
+                                     }}
+                                   />
+                
+                          
+                </div>
+              </Grid>
+            </Grid>
+          </Box>
+
+         
+
+          {/* Employee Popup */}
           <Dialog open={showEmpPopup} onClose={() => setShowEmpPopup(false)} fullWidth maxWidth="sm">
             <DialogTitle>
               Select Employee
@@ -453,12 +316,10 @@ const OnDutyForm = () => {
             </DialogContent>
           </Dialog>
         </div>
- 
       )}
 
       {showPreview && <OnDutyPreview formData={formData} onClose={() => setShowPreview(false)} />}
     </>
-
   );
 };
 
