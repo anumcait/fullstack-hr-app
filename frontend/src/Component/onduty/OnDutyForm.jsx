@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  TextField, Typography, Button, FormControl, InputLabel, Select,
+  InputAdornment,TextField, Typography, Button, FormControl, InputLabel, Select,
   MenuItem, Dialog, DialogTitle, DialogContent, IconButton, Grid, Box
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -9,8 +9,12 @@ import './onDutyForm.css';
 import axios from 'axios';
 import OnDutyPreview from './OnDutyPreview';
 import SearchIcon from '@mui/icons-material/Search';
+import { useToast } from '../../context/ToastContext';
+import EmployeeSelectDialog from "../Employee/EmployeeSelectDialog"; 
 
 const OnDutyForm = () => {
+  const { showToast } = useToast();
+  
   const getCurrentISTDateTime = () => {
     const nowUTC = new Date(Date.now());
     const istDate = new Date(nowUTC.getTime());
@@ -23,7 +27,7 @@ const OnDutyForm = () => {
   };
 
   const [formData, setFormData] = useState({
-    movement_id: '1',
+    movement_id:'' ,
     movement_date: getCurrentISTDateTime(),
     empid: '',
     ename: '',
@@ -59,6 +63,22 @@ const OnDutyForm = () => {
     handleTimeChange();
 
   }, [formData.perm_ftime, formData.perm_ttime]);
+  
+useEffect(() => {
+  fetchNextMovementId();
+}, []);
+  useEffect(() => {
+    const handleKey = (e) => {
+      // If the key pressed is F9 (key === "F9" OR keyCode === 120)
+      if (e.key === "F9" || e.keyCode === 120) {
+        e.preventDefault();          // optional: stop browser default
+        openEmpPopup();              // your existing function
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey); // cleanup
+  }, []);     
 
 //   useEffect(() => {
 //   const fetchNextId = async () => {
@@ -73,22 +93,30 @@ const OnDutyForm = () => {
 //   fetchNextId();
 // }, []);
 
-  const openEmpPopup = async () => {
-    const mockData = [
-      { empid: 143864, ename: 'John Doe', unit: 'A', division: 'HR', designation: 'Officer' },
-      { empid: 102, ename: 'Jane Smith', unit: 'B', division: 'Finance', designation: 'Clerk' }
-    ];
-    setEmployeeList(mockData);
-    setShowEmpPopup(true);
-  };
+//   const openEmpPopup = async () => {
+//   try {
+//     const response = await axios.get(`${import.meta.env.VITE_API_URL}/employees`);
+//     setEmployeeList(response.data); // assuming API returns array of employees
+//     setShowEmpPopup(true);
+//   } catch (err) {
+//     console.error("Error fetching employee list:", err);
+//     showToast("❌ Failed to load employees", "error");
+//   }
+// };
+
+const openEmpPopup = async () => {
+  const response = await axios.get(`${import.meta.env.VITE_API_URL}/employees`);
+  setEmployeeList(response.data);
+  setShowEmpPopup(true);
+};
 
   const selectEmployee = (emp) => {
     setFormData({
       ...formData,
       empid: emp.empid,
       ename: emp.ename,
-      unit: emp.unit,
-      division: emp.division,
+      unit: emp.uname,
+      division: emp.divname,
       designation: emp.designation
     });
     setShowEmpPopup(false);
@@ -113,23 +141,122 @@ const OnDutyForm = () => {
       alert('Failed to generate report');
     }
   };
-
-  const saveOnDuty = async () => {
+const fetchNextMovementId = async () => {
   try {
-    const response = await axios.post(`${import.meta.env.VITE_API_URL}/onduty/save`, formData);
-// console.log('Payload to be saved:', formData);
-    if (response.status === 201) {
-      //toast.success(`Saved successfully. ID: ${res.data.movement_id}`);
-       alert(`Saved successfully. ID: ${response.data.movement_id}`);
-      // Optionally reset or fetch a new form
-    } else {
-      alert('Failed to save');
-    }
-  } catch (err) {
-    console.error('Save error:', err);
-    alert('Error saving On Duty application');
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/onduty/next-id`);
+    const nextId = response.data.nextMovementId;
+
+    // Initialize the form
+    setFormData({
+      movement_id: nextId,
+      movement_date: getCurrentISTDateTime(),
+      empid: '',
+      ename: '',
+      unit: '',
+      division: '',
+      designation: '',
+      shift: '',
+      act_date: '',
+      perm_ftime: '',
+      perm_ttime: '',
+      no_of_hrs: '',
+      reason_perm: ''
+    });
+  } catch (error) {
+    console.error('Failed to fetch next movement ID:', error);
   }
 };
+
+// const validateForm = () => {
+//   const {
+//     empid, ename, movement_date, act_date,
+//     perm_ftime, perm_ttime, no_of_hrs, reason_perm
+//   } = formData;
+
+//   if (!empid || !ename || !movement_date || !act_date) {
+//     showToast("Please fill all mandatory fields", "error");
+//     return false;
+//   }
+
+//   if (!perm_ftime || !perm_ttime || !no_of_hrs) {
+//     showToast("Permission time fields are required", "error");
+//     return false;
+//   }
+
+//   return true;
+// };
+
+// const saveOnDuty = async () => {
+//   try {
+//     const response = await axios.post(`${import.meta.env.VITE_API_URL}/onduty/save`, formData);
+//     const savedId = response.data.movement_id;
+
+//     showToast(`✅ On Duty Saved. ID: ${savedId}`, "success");
+
+//     // Reset form after save (optional)
+//     setFormData({
+//       movement_id: '',
+//       movement_date: getCurrentISTDateTime(),
+//       empid: '',
+//       ename: '',
+//       unit: '',
+//       division: '',
+//       designation: '',
+//       shift: '',
+//       act_date: '',
+//       perm_ftime: '',
+//       perm_ttime: '',
+//       no_of_hrs: '',
+//       reason_perm: ''
+//     });
+
+//     fetchNextMovementId(); // to get next available ID
+
+//   } catch (err) {
+//     console.error('Save error:', err);
+//     showToast('❌ Error saving On Duty application', "error");
+//   }
+// };
+const saveOnDuty = async () => {
+  // ✅ Basic validation
+  if (!formData.empid || !formData.ename || !formData.movement_date || !formData.act_date || !formData.perm_ftime || !formData.perm_ttime) {
+    showToast("❌ Please fill all required fields.", "error");
+    return;
+  }
+
+  try {
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/onduty/save`, formData);
+    const savedId = response.data.movement_id;
+
+    showToast(`✅ Onduty Saved. ID: ${savedId}`, "success");
+
+    // ✅ Clear form but retain movement_id until fetchNextMovementId runs
+    setFormData(prev => ({
+      ...prev,
+      movement_date: getCurrentISTDateTime(),
+      empid: '',
+      ename: '',
+      unit: '',
+      division: '',
+      designation: '',
+      shift: '',
+      act_date: '',
+      perm_ftime: '',
+      perm_ttime: '',
+      no_of_hrs: '',
+      reason_perm: ''
+    }));
+
+    // ✅ Get next available ID after save
+    fetchNextMovementId();
+
+  } catch (err) {
+    console.error('Save error:', err);
+    showToast('❌ Error saving On Duty application', "error");
+  }
+};
+
+
   return (
     <>
       {!showPreview && (
@@ -174,14 +301,25 @@ const OnDutyForm = () => {
               {/* Row 2 */}
               <Grid item xs={12} md={3}>
                 <div className="form-row">
-                   <label>Emp ID</label>
+                   <label>Emp ID *</label>
                   <TextField
-                    size="small"
-                    fullWidth
-                    value={formData.empid}
-                    onClick={openEmpPopup}
-                    InputProps={{ endAdornment: <SearchIcon style={{ cursor: 'pointer', size:'small' }} /> }}
-                  /> 
+
+  size="small"
+  required
+  fullWidth
+  value={formData.empid}
+  onClick={openEmpPopup}
+  InputProps={{
+    endAdornment: (
+      <InputAdornment position="end">
+        <SearchIcon
+          onClick={openEmpPopup}
+          style={{ cursor: 'pointer', verticalAlign: 'middle' }}
+        />
+      </InputAdornment>
+    )
+  }}
+/>
                    
                  {/* <label>Emp Id</label>
                    <div className="combo-box">
@@ -269,10 +407,12 @@ const OnDutyForm = () => {
        
                            
                        <TextField
-                                    //  label="Item Description"
-                                   //   label="Item Description"
-                                     multiline
+                                   
+                                   name="reason_perm"  
+                                   multiline
                                      rows={2}
+                                    value={formData.reason_perm} onChange={handleChange} 
+                                     
                                      fullWidth
                                      variant='outlined'
                                      size="small"
@@ -300,21 +440,14 @@ const OnDutyForm = () => {
          
 
           {/* Employee Popup */}
-          <Dialog open={showEmpPopup} onClose={() => setShowEmpPopup(false)} fullWidth maxWidth="sm">
-            <DialogTitle>
-              Select Employee
-              <IconButton onClick={() => setShowEmpPopup(false)} style={{ float: 'right' }}>
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent>
-              {employeeList.map(emp => (
-                <div key={emp.empid} className="emp-popup-item" onClick={() => selectEmployee(emp)}>
-                  {emp.empid} - {emp.ename} ({emp.division})
-                </div>
-              ))}
-            </DialogContent>
-          </Dialog>
+          <EmployeeSelectDialog
+  open={showEmpPopup}
+  onClose={() => setShowEmpPopup(false)}
+  onSelect={selectEmployee}
+  data={employeeList}
+/>
+
+
         </div>
       )}
 

@@ -4,6 +4,7 @@
   border-radius: 4px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   font-family: 'Roboto', sans-serif;
+  border: solid 1px #ccc;
 }
 
 .onduty-header {

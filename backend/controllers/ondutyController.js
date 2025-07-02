@@ -31,6 +31,7 @@ exports.getNextOnDutyNumber = async (req, res) => {
   try {
     const maxId = await OnDutyApplication.max('movement_id');
     const nextId = (maxId || 0) + 1;
+    console.log('nextId:',nextId);
     res.json({ nextMovementId: nextId });
   } catch (error) {
     console.error('❌ Error fetching next movement_id:', error);
