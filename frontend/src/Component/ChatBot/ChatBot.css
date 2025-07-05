@@ -1,8 +1,8 @@
 .chatbot-icon {
   position: fixed;
-  bottom: 30px;
+  bottom: 50px;
   right: 30px;
-  background-color: #0078d4;
+  background-color: var(--hover-color);
   color: white;
   padding: 14px;
   border-radius: 50%;

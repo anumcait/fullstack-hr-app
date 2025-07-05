@@ -67,8 +67,15 @@ module.exports = (sequelize) => {
       tableName: 'employee_master',
       timestamps: false,
       underscored: true, // 👈 ensures correct column mapping
-    }
+    },
+  
   );
 
+Employee.associate = (models) => {
+  Employee.hasOne(models.User, {
+    foreignKey: 'empid',
+    as: 'user'
+  });
+};
   return Employee;
 };

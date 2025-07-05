@@ -1,41 +1,71 @@
 const express = require('express');
+const session = require('express-session');
 const cors = require('cors');
+const path = require('path');
+const authRoutes = require('./routes/authRoutes');
+
+require('dotenv').config(); // make sure .env is loaded before using
+
 const employeeRoutes = require('./routes/employeeRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
 const ondutyRoutes = require('./routes/ondutyRoutes');
 const jasperRoutes = require('./routes/jasperRoutes');
 
+
 const app = express();
+
+// Allowed origins for CORS
 const allowedOrigins = [
   'http://localhost',
-  'http://52.4.231.1', //AWS dev
-  'http://localhost:5173', // local Vite dev server
-  'https://fullstack-hr-app-frontend.onrender.com', // deployed frontend
+  'http://localhost:5173',
+  'http://52.4.231.1',
+  'https://fullstack-hr-app-frontend.onrender.com',
 ];
+
 // Middlewares
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); // allow requests with no origin (like curl or Postman) or matching origins
+      callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Employee Routes
+// ✅ Session middleware
+// app.use(session({
+//   secret: process.env.SESSION_SECRET || 'default_session_secret',
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     secure: false, // true if using HTTPS
+//     httpOnly: true,
+//     maxAge: 1000 * 60 * 60 * 2 // 2 hours
+//   }
+// }));
+
+app.use(session({
+  secret: 'your_secret_here',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // set to true in production with HTTPS
+    maxAge: 1000 * 60 * 60 // 1 hour
+  }
+}));
+
+// Routes
 app.use('/api/employees', employeeRoutes);
+app.use('/api/leave', leaveRoutes);
+app.use('/api/onduty', ondutyRoutes);
+app.use('/api/jasper', jasperRoutes);
+app.use('/api/auth', authRoutes);
 
-//Leave Routes
-app.use('/api/leave', leaveRoutes); // http://localhost:5000/api/leave/apply
-
-//onduty Routes
-app.use('/api/onduty', ondutyRoutes); 
-
-app.use('/api/jasper', jasperRoutes); 
 
 // Health check
 app.get('/', (req, res) => res.send('✅ App is running.'));

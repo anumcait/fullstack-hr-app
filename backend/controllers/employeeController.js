@@ -1,4 +1,5 @@
-const { employee_master } = require('../models');
+const { employee_master,User } = require('../models');
+const bcrypt = require('bcrypt');
 
 exports.getAllEmployees = async (req, res) => {
   try {
@@ -30,11 +31,39 @@ exports.getEmployeeById = async (req, res) => {
 
 
 exports.createEmployee = async (req, res) => {
+  const t = await employee_master.sequelize.transaction(); // Start transaction
   try {
-    const newEmployee = await employee_master.create(req.body);
-    res.status(201).json(newEmployee);
+    // 1. Create employee
+    const newEmployee = await employee_master.create(req.body, { transaction: t });
+
+    // 2. Prepare default user values
+    const defaultPassword = 'AUCTOR';
+    const password_hash = await bcrypt.hash(defaultPassword, 10);
+
+    const username = req.body.uname || newEmployee.empid.toString(); // Use uname or empid
+    const role = 'user';
+    const created_by = req.session?.userId || null;
+
+    // 3. Create user
+    await User.create({
+      username,
+      password_hash,
+      empid: newEmployee.empid,
+      role,
+      created_by,
+      is_active: true,
+      login_count: 0
+    }, { transaction: t });
+
+    await t.commit();
+
+    res.status(201).json({
+      message: 'Employee and user created successfully',
+      employee: newEmployee
+    });
   } catch (error) {
-    console.error('Error creating employee:', error);
+    await t.rollback();
+    console.error('Error creating employee and user:', error);
     res.status(400).json({ error: error.message });
   }
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './LoginForm.css';
-import logo from "../../assets/images/logo_synkspot.png";
+import logo from "../../assets/images/EQIC_Image.jpg";
 import axios from 'axios';
 
 const LoginForm = () => {
@@ -9,24 +9,32 @@ const LoginForm = () => {
   const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // try {
-    //   const response = await axios.post('http://localhost:5000/api/auth/login', {
-    //     username,
-    //     password
-    //   });
+  try {
+    const response = await axios.post(
+      'http://localhost:5000/api/auth/login',
+      {
+        username,
+        password
+      },
+      {
+        withCredentials: true // ⬅️ VERY IMPORTANT for session to work
+      }
+    );
 
-      // Handle success (store user or redirect)
-      console.log('Login successful:',username);//, response.data);
-      localStorage.setItem('userName', username);//JSON.stringify(response.data));
-      window.location.href = '/dashboard';
+    // Save session info to localStorage or state
+    const { user } = response.data;
+    localStorage.setItem('userName', user.username);
+    localStorage.setItem('userRole', user.role); // optional
+    localStorage.setItem('empName', user.ename);
+    window.location.href = '/dashboard';
+  } catch (err) {
+    console.error('Login error:', err.response?.data || err.message);
+    setError('Invalid username or password');
+  }
+};
 
-    // } catch (err) {
-    //   console.error('Login error:', err);
-    //   setError('Invalid username or password');
-    // }
-  };
 
   return (
     <div className="login-page">
@@ -67,8 +75,8 @@ const LoginForm = () => {
       </div>
 
       <div className="footer">
-        <span>2025 Suvih Technologies. All rights reserved</span>
-        <span className="powered">Powered By: Synkspot</span>
+        <span>2025 Auctor Home Appliances. All rights reserved</span>
+        <span className="powered">Powered By: EQICERP</span>
       </div>
     </div>
   );

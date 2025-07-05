@@ -1,106 +1,72 @@
 import React, { useState, useEffect } from "react";
-import { FaDownload, FaPrint, FaSearch } from "react-icons/fa";
 import axios from "axios";
-import './onDutyTable.css';
 import OnDutyPreview from "./OnDutyPreview";
+import SmartTable from "../../Component/Common/SmartTable";
 
 const OnDutyTable = () => {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
 
-  // 🔄 Fetch data from backend
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/onduty/all`);
-        const formatted = response.data.map((row, index) => ({
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/onduty/all`);
+        const formatted = res.data.map((row, index) => ({
           sno: index + 1,
-          ...row
+          _expanded: false,
+          ...row,
         }));
         setData(formatted);
       } catch (err) {
-        console.error("❌ Failed to fetch On Duty data:", err);
+        console.error("Failed to fetch data:", err);
       }
     };
     fetchData();
   }, []);
 
+  const handleExpand = (targetRow) => {
+    const updated = data.map((row) =>
+      row.movement_id === targetRow.movement_id
+        ? { ...row, _expanded: !row._expanded }
+        : row
+    );
+    setData(updated);
+  };
+
+  const columns = [
+    { header: "S.No.", field: "sno" },
+    { header: "Movement ID", field: "movement_id" },
+    { header: "Emp ID", field: "empid" },
+    { header: "Name", field: "ename" },
+    { header: "Unit", field: "unit" },
+    { header: "Division", field: "division" },
+    { header: "Designation", field: "designation" },
+    { header: "Reason", field: "reason_perm", expandable: true },
+  ];
+
   return (
-    <div className="onduty-table-wrapper">
-      <div className="onduty-table-header">
-        <div className="onduty-table-title">On Duty List</div>
-        <div className="onduty-table-icons">
-          <FaDownload className="icon" title="Download" />
-          <FaPrint className="icon" title="Print" />
-        </div>
-      </div>
+    <>
+      <SmartTable
+        title="On Duty List"
+        columns={columns}
+        data={data}
+        onPreview={(row) => {
+          setSelectedRecord(row);
+          setShowForm(true);
+        }}
+        onToggleExpand={handleExpand}
+      />
 
-      <div className="onduty-table-container">
-        <table className="onduty-table">
-          <thead>
-            <tr>
-              <th>S.No.</th>
-              <th>Movement ID</th>
-              <th>Entry Date</th>
-              <th>Emp ID</th>
-              <th>Name</th>
-              <th>Unit</th>
-              <th>Division</th>
-              <th>Designation</th>
-              <th>Mov.Date</th>
-              <th>From Time</th>
-              <th>To Time</th>
-              <th>Hours</th>
-              <th>Reason</th>
-              <th>Preview</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row) => (
-              <tr key={row.movement_id}>
-                <td>{row.sno}</td>
-                <td>{row.movement_id}</td>
-                <td>{row.movement_date
-                                        ? new Date(row.movement_date).toLocaleString('en-GB', {
-                                            day: '2-digit',
-                                            month: '2-digit',
-                                            year: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            hour12: false
-                                          }).replace(',', '')
-                                        : '--'}</td>
-                <td>{row.empid}</td>
-                <td>{row.ename}</td>
-                <td>{row.unit}</td>
-                <td>{row.division}</td>
-                <td>{row.designation}</td>
-                <td>{row.act_date?.slice(0, 10).split('-').reverse().join('-')}</td>
-                <td>{row.perm_ftime?.slice(0,5)}</td>
-                <td>{row.perm_ttime?.slice(0,5)}</td>
-                <td>{row.no_of_hrs}</td>
-                <td>{row.reason_perm}</td>
-                <td className="preview-icon-cell">
-                  <a href="#" onClick={() => { setSelectedRecord(row); setShowForm(true); }}>
-                    <FaSearch size={18} color="#007bff" />
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 🔍 Preview Popup */}
       {showForm && (
         <OnDutyPreview data={selectedRecord} onClose={() => setShowForm(false)} />
       )}
-    </div>
+    </>
   );
 };
 
 export default OnDutyTable;
+
 // import React, { useState, useEffect } from "react";
 // import axios from "axios";
 // import {

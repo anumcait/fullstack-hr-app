@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
 import DashBoard from "./Component/DashBoard/DashBoard";
 import QualityApprovalForm from "./Component/QualityApproval/QualityApprovalForm";
 import StockVariationForm from "./Component/StockVariation/StockVariationForm";
@@ -42,20 +44,25 @@ import MainLayout from "./Component/Layout/MainLayout";
 import OnDutyPreview from "./Component/onduty/OnDutyPreview";
 import OnDutyDashboard from "./Component/onduty/OnDutyDashboard";
 import EditItem from "./Component/ItemMaster/EditItem";
-
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme';
 
 function App() {
   return (
-    
+    <ThemeProvider theme={theme}>
      <ToastProvider>
     <div className="App">
      
        <Router>
       <Routes >
         
-        {/* <Route path="/" element={<LoginForm />} /> */}
-        <Route element={<MainLayout />}>
-        <Route path="/" element={<DashBoard/>} />
+        <Route path="/" element={<LoginForm />} />
+        <Route element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }>
+        <Route path="/dashboard" element={<DashBoard/>} />
 
         
         <Route path="/leave-form" element={<LeaveForm />} />
@@ -104,6 +111,7 @@ function App() {
     </Router> 
     </div>
     </ToastProvider>
+    </ThemeProvider>
   );
 }
 

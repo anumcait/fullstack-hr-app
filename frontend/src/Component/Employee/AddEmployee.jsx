@@ -6,8 +6,8 @@ const AddEmployeeForm = () => {
   const [activeTab, setActiveTab] = useState("personal");
   const [formData, setFormData] = useState({
     empid: 1020,
-    emptype: '', uno: '', divno: '', deptno: '', secno: '', sex: '', marital_status: '',
-    ename: '', fname: '', dob: '', pob: '', bgroup: '', mother_toungue: '', idfm1: '', idfm2: '',
+    emptype: '', uno: 0, divno: 0, deptno: 0, secno: 0, sex: '', marital_status: '',
+    ename: '', fname: '', dob: new Date().toISOString().slice(0, 10), pob: '', bgroup: '', mother_toungue: '', idfm1: '', idfm2: '',
     lang_known: '', cadd_sa: '', cadd_city: '', cadd_state: '', cadd_phone: '', cadd_mobile: '',
     cadd_pin: '', cadd_email: '', padd_sa: '', padd_city: '', padd_state: '', padd_phone: '',
     padd_mobile: '', padd_pin: '', padd_email: '', uname: '', divname: '', deptname: '', secname: '',
@@ -56,6 +56,7 @@ const AddEmployeeForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const payload = { ...formData, familyDetails };
       await axios.post('http://localhost:5000/api/employees/add-employee', payload, {

@@ -79,7 +79,113 @@
   align-items: center;
   text-decoration: none;
 }
+.reason-td {
+  position: relative;
+  max-width: 200px;
+}
 
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expand-icon-btn {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.expand-icon {
+  fill: #555;
+  transition: transform 0.3s ease;
+}
+
+.expand-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.expand-row td {
+  background-color: #f9f9f9;
+  padding: 10px 16px;
+  border-top: 1px solid #ccc;
+}
+
+.expand-content {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.reason-cell {
+  max-width: 220px;
+  padding: 4px 8px;
+  vertical-align: top;
+}
+
+.reason-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+}
+
+.reason-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 🟢 When expanded, allow multiline */
+.reason-container.expanded .reason-text {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
+}
+
+
+/* 📦 For cells like Reason, Designation, etc. */
+.reason-text,
+.designation-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ✨ When expanded */
+.reason-container.expanded .reason-text,
+.designation-container.expanded .designation-text {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
+}
+
+/* 🧩 Expand icon styling */
+.expand-icon-cell {
+  text-align: center;
+  cursor: pointer;
+}
+
+.expand-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.unfold-icon {
+  fill: #007bff;
+  transition: transform 0.2s ease;
+}
+
+.unfold-icon.rotated {
+  transform: rotate(180deg);
+}
 @media (max-width: 768px) {
   .onduty-table-container {
     overflow-x: scroll;
