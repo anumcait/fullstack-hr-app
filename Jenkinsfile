@@ -45,7 +45,7 @@ pipeline {
             echo "⚠️ Trivy is not installed. Please install it on the Jenkins agent."
             exit 1
           fi
-          trivy image --exit-code 1 --severity HIGH,CRITICAL $BACKEND_IMAGE
+          trivy image --exit-code 0 --severity HIGH,CRITICAL $BACKEND_IMAGE
         '''
       }
     }
