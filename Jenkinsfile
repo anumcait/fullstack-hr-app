@@ -1,6 +1,9 @@
 pipeline {
-  agent any  // Run this on any available Jenkins agent
-
+  agent {
+    docker {
+      image 'node:18'
+    }
+  }
   environment {
     BACKEND_IMAGE = 'hr-backend'
     FRONTEND_IMAGE = 'hr-frontend'
