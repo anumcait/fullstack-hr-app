@@ -1,0 +1,140 @@
+
+.mrnvendor-overlay {
+  /* background-color: white;
+  padding: 30px;
+  font-family: Arial, sans-serif;
+  color: #333; */
+    position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  z-index: 999;
+  overflow-y: auto;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 20px;
+}
+
+.mrnvendor-header {
+  /* display: flex;
+  align-items: center;
+  gap: 20px; */
+  display: flex
+;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 15px;
+    margin-bottom: 10px;
+}
+
+.mrnvendor-logo {
+  width: 80px;
+  height: auto;
+}
+
+.mrnvendor-details {
+  flex: 1;
+}
+
+.mrnvendor-details h2 {
+  /* margin: 0;
+  font-size: 20px;
+  text-align: center; */
+   margin: 0;
+  font-size: 22px;
+}
+
+.mrnvendor-details p {
+  /* font-size: 12px;
+  text-align: center; */
+    font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.mrnvendor-title {
+  /* text-align: center;
+  margin: 20px 0;
+  font-size: 16px;
+  color: #007bff;
+  text-transform: uppercase; */
+   text-align: center;
+  font-weight: bold;
+  color: #0a75c2;
+  margin: 20px 0;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.mrnvendor-info {
+  /* display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 5px 20px;
+  font-size: 14px;
+  margin-bottom: 20px; */
+  /* display: flex
+;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 15px;
+    margin-bottom: 10px; */
+      display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.mrnvendor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.mrnvendor-table th,
+.mrnvendor-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.mrnvendor-table .link {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.total-row {
+  font-weight: bold;
+}
+
+.mrnvendor-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.mrnvendor-actions button {
+  padding: 6px 15px;
+  font-size: 14px;
+  border: 1px solid #007bff;
+  background-color: #fff;
+  color: #007bff;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.mrnvendor-actions button:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+.mrnvendor-container{
+     max-width: 1200px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border: 1px solid #ccc;
+}

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import OnDutyForm from "./OnDutyForm";
-import OnDutyTable from "./onDutyTable";
+import OnDutyTable from "./OnDutyTable";
 import './OnDutyDashboard.css';
 
 const OnDutyDashboard = () => {
@@ -42,7 +42,7 @@ const OnDutyDashboard = () => {
     <div className="od-dashboard-container">
       {/* Header Row */}
       <div className="od-dashboard-header">
-        <h2 className="od-dashboard-title">On Duty Dashboard</h2>
+        <h2 className="od-dashboard-title">On Duty Dashboard </h2>
         <div className="od-dropdown-wrapper" ref={dropdownRef}>
           <button className="od-dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
             ☰

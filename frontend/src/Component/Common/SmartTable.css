@@ -17,21 +17,74 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  gap: 16px;
 }
 
 .smart-table-title {
   font-weight: bold;
   font-size: 16px;
+  white-space: nowrap;
 }
+
+.smart-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Reduced gap */
+}
+
+/* Reuse common icon button styles */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.icon-button:hover {
+  background-color: #f5f5f5;
+}
+
+/* Specific styles for Excel and PDF */
+.excel-btn {
+  color: white;
+  background-color: #217346; /* Excel green */
+}
+
+.pdf-btn {
+  color: white;
+  background-color: #d32f2f; /* PDF red */
+}
+
+.excel-btn:hover {
+  background-color: #1b5e20;
+}
+
+.pdf-btn:hover {
+  background-color: #b71c1c;
+}
+
+/* Vertical Divider */
+.vertical-divider {
+  height: 20px;
+  width: 1px;
+  background-color: #ccc;
+  margin: 0 8px;
+}
+
 
 .smart-column-toggle {
   position: relative;
+  display: flex;
+
 }
 
 .column-toggle-button {
   background: none;
   border: none;
-  padding: 6px;
+  padding: 18px 8px;
   cursor: pointer;
   border-radius: 4px;
 }

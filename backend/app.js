@@ -3,6 +3,8 @@ const session = require('express-session');
 const cors = require('cors');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes');
+const client = require('prom-client');
+client.collectDefaultMetrics();
 
 require('dotenv').config(); // make sure .env is loaded before using
 
@@ -69,5 +71,10 @@ app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/', (req, res) => res.send('✅ App is running.'));
+
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
 
 module.exports = app;

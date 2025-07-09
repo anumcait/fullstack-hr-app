@@ -1,28 +1,66 @@
+version: "3.9"
+
 services:
   backend:
-    image: backend-image
-    container_name: hr-backend
     build:
       context: ./backend
+    command: npx nodemon index.js
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     ports:
       - "5000:5000"
     environment:
       - DB_HOST=host.docker.internal
-      - DB_USER=postgres
-      - DB_PASS=root123
-      - DB_NAME=hrdb
-      - DB_DIALECT=postgres
-    networks:
-      - hr-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   frontend:
-    image: frontend-image
-    container_name: hr-frontend
     build:
       context: ./frontend
+    command: npm run dev -- --host
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     ports:
-      - "80:80"
-    networks:
-networks:
-  hr-network:
-    driver: bridge
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+      - CHOKIDAR_USEPOLLING=true
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    user: root
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    container_name: jenkins
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    container_name: prometheus
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3002:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    container_name: grafana
+
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+    container_name: node-exporter
+
+volumes:
+  jenkins_home:
+  grafana_data:

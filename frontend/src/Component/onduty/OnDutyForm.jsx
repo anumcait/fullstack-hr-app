@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import './onDutyForm.css';
+import './OnDutyForm.css';
 import axios from 'axios';
 import OnDutyPreview from './OnDutyPreview';
 import SearchIcon from '@mui/icons-material/Search';

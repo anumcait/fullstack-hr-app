@@ -3,6 +3,11 @@ import { FaSearch, FaSlidersH } from "react-icons/fa";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown, faSort } from '@fortawesome/free-solid-svg-icons';
 import "./SmartTable.css";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FaFileExcel, FaFilePdf } from "react-icons/fa";
 
 const SmartTable = ({ title, columns, data, onPreview, onToggleExpand }) => {
   const [visibleColumns, setVisibleColumns] = useState(columns.map(col => col.field));
@@ -62,17 +67,71 @@ const SmartTable = ({ title, columns, data, onPreview, onToggleExpand }) => {
     page * rowsPerPage + rowsPerPage
   );
 
+  const exportToExcel = () => {
+  const exportData = filteredData.map((row) => {
+    const output = {};
+    visibleColumns.forEach((col) => {
+      const header = columns.find((c) => c.field === col)?.header || col;
+      output[header] = row[col];
+    });
+    return output;
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(blob, `${title || "SmartTable"}_${new Date().toISOString()}.xlsx`);
+};
+
+const exportToPDF = () => {
+  const doc = new jsPDF();
+
+  const tableColumn = visibleColumns.map((col) => {
+    const colHeader = columns.find(c => c.field === col)?.header || col;
+    return colHeader;
+  });
+
+  const tableRows = filteredData.map((row) =>
+    visibleColumns.map((col) => row[col] ?? "")
+  );
+
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    styles: { fontSize: 8 },
+    margin: { top: 20 }
+  });
+
+  doc.save(`${title || "SmartTable"}_${new Date().toISOString()}.pdf`);
+};
   return (
     <div className="smart-table-wrapper">
       {/* Header */}
       <div className="smart-table-header">
-        <div className="smart-table-title">{title}</div>
+  <div className="smart-table-title">{title}</div>
+
+
+
         <div className="smart-column-toggle">
-          <FaSlidersH
-            className="column-toggle-icon"
-            title="Displayed columns"
-            onClick={handleOpenSelector}
-          />
+<div className="smart-header-actions">
+  <button onClick={exportToExcel} title="Export to Excel" className="icon-button excel-btn">
+    <FaFileExcel size={16} />
+  </button>
+    <div className="vertical-divider" />
+  <button onClick={exportToPDF} title="Export to PDF" className="icon-button pdf-btn">
+    <FaFilePdf size={16} />
+  </button>
+
+  <div className="vertical-divider" />
+
+  <button onClick={handleOpenSelector} title="Displayed Columns" className="icon-button">
+    <FaSlidersH size={16} />
+  </button>
+</div>
+       
           {showColumnSelector && (
             <div className="column-selector-dropdown">
               <div className="dropdown-header">Displayed columns</div>

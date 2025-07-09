@@ -1,5 +1,5 @@
 import React from "react";
-import "./onDutyPreview.css";
+import "./OnDutyPreview.css";
 import logo from "../../assets/images/EQIC_Image.jpg";
 
 // 📆 Utility: Format date to DD-MMM-YYYY
