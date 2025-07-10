@@ -12,6 +12,7 @@ services:
       - .:/app
     restart: unless-stopped
     network_mode: bridge
+
 #     networks:
 #       - hrnet
 
