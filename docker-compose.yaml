@@ -5,38 +5,38 @@ services:
     ports:
       - "8080:8080"
       - "50000:50000"
+    user: root
     volumes:
       - ./jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/app  # Mounts full project for Jenkins pipeline
-    user: root
+      - .:/app
     restart: unless-stopped
-    networks:
-      - hrnet
+#     networks:
+#       - hrnet
 
-  backend:
-    build: ./backend
-    container_name: hr-backend
-    ports:
-      - "5000:5000"
-    restart: "no"
-    networks:
-      - hrnet
+#   backend:
+#     build: ./backend
+#     container_name: hr-backend
+#     ports:
+#       - "5000:5000"
+#     restart: "no"
+#     networks:
+#       - hrnet
 
-  frontend:
-    build: ./frontend
-    container_name: hr-frontend
-    ports:
-      - "5173:5173"
-    restart: "no"
-    depends_on:
-      - backend
-    networks:
-      - hrnet
+#   frontend:
+#     build: ./frontend
+#     container_name: hr-frontend
+#     ports:
+#       - "5173:5173"
+#     restart: "no"
+#     depends_on:
+#       - backend
+#     networks:
+#       - hrnet
 
-networks:
-  hrnet:
-    driver: bridge
+# networks:
+#   hrnet:
+#     driver: bridge
 
 
 # services:
