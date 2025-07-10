@@ -3,9 +3,18 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host"]
 
-ENV NODE_ENV=development 
+# FROM node:20-alpine
 
-EXPOSE 3000
+# WORKDIR /app
 
-CMD ["npm", "run", "dev"]
+# COPY package*.json ./
+# RUN npm install
+
+# COPY . .
+
+# EXPOSE 5173
+
+# CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
