@@ -1,17 +1,22 @@
- # ---------- JENKINS ----------
+version: "3.8"
+
+services:
   jenkins:
     build:
       context: .
-      dockerfile: Dockerfile.jenkins
-    # container_name: jenkins
+      dockerfile: Dockerfile.jenkins      # your custom Jenkins image
     user: root
     ports:
-      - "8080:8080"                 # Jenkins UI
-      - "50000:50000"               # JNLP agents
+      - "8080:8080"                       # Jenkins UI
+      - "50000:50000"                     # JNLP inbound agents
     volumes:
-      - ./jenkins_data:/var/jenkins_home    # host‑path bind mount
+      - ./jenkins_data:/var/jenkins_home  # persist jobs & plugins
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/app                       # Jenkins sees repo
+      - .:/app                            # optional: repo visible to Jenkins
     networks:
       - hr-network
     restart: unless-stopped
+
+networks:
+  hr-network:
+    driver: bridge
