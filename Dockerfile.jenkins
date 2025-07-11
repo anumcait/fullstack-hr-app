@@ -4,46 +4,27 @@ USER root
 
 # Install Docker CLI and Compose Plugin
 RUN apt-get update && \
-    apt-get install -y docker.io \
-    docker-compose&& \ 
-    apt-get clean
+    apt-get install -y \
+    git \
+    curl \
+    wget \      
+    lsb-release \
+    gnupg2 \
+    ca-certificates \
+    python3 \
+    python3-pip \
+    nodejs \
+    npm \
+    unzip \
+    docker.io \
+    docker-compose && \
+    rm -rf /var/lib/apt/lists/*
 
-# optional: prove docker works
-RUN docker --version
+# ✅ Install Trivy after wget is available
+RUN wget https://github.com/aquasecurity/trivy/releases/download/v0.64.1/trivy_0.64.1_Linux-64bit.deb && \
+    dpkg -i trivy_0.64.1_Linux-64bit.deb && \
+    rm trivy_0.64.1_Linux-64bit.deb
 
+# Set safe directory for git
 USER jenkins
-
-
-# FROM jenkins/jenkins:lts
-
-# USER root
-
-# # Create docker group and add Jenkins user to it
-# RUN groupadd -f docker && usermod -aG docker jenkins
-
-# # Install dependencies including wget
-# RUN apt-get update && \
-#     apt-get install -y \
-#     git \
-#     curl \
-#     wget \      
-#     lsb-release \
-#     gnupg2 \
-#     ca-certificates \
-#     python3 \
-#     python3-pip \
-#     nodejs \
-#     npm \
-#     unzip \
-#     docker.io \
-#     docker-compose && \
-#     rm -rf /var/lib/apt/lists/*
-
-# # ✅ Install Trivy after wget is available
-# RUN wget https://github.com/aquasecurity/trivy/releases/download/v0.64.1/trivy_0.64.1_Linux-64bit.deb && \
-#     dpkg -i trivy_0.64.1_Linux-64bit.deb && \
-#     rm trivy_0.64.1_Linux-64bit.deb
-
-# # Set safe directory for git
-# USER jenkins
-# RUN git config --global --add safe.directory /var/jenkins_home/workspace/fullstack-hr-pipeline
+RUN git config --global --add safe.directory /var/jenkins_home/workspace/fullstack-hr-pipeline
