@@ -1,21 +1,35 @@
 services:
   jenkins:
-    image: jenkins/jenkins:lts
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins   # 👈 build our custom image
     container_name: jenkins
+    user: root                         # needs root to run docker inside
     ports:
       - "8080:8080"
       - "50000:50000"
-    user: root
     volumes:
       - ./jenkins_data:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - hrnet
+      - /var/run/docker.sock:/var/run/docker.sock   # keep this
+      - .:/app
     restart: unless-stopped
 
-networks:
-  hrnet:
-    driver: bridge
+
+  backend:
+    build: ./backend
+    container_name: hr-backend
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: hr-frontend
+    ports:
+      - "5173:5173"
+    restart: unless-stopped
+    depends_on:
+      - backend
 
 
 #     networks:
