@@ -1,17 +1,36 @@
 version: "3.8"
 
 services:
+  # ─────────── DATABASE (PostgreSQL) ───────────
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: hrdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+    volumes:
+      - pgdata:/var/lib/postgresql/data          # persistent tables
+      - ./pg_restore:/pg_restore                 # hrdb.backup lives here
+      - ./init-scripts:/docker-entrypoint-initdb.d   # auto‑restore script
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
+      interval: 10s
+      retries: 5
+    restart: unless-stopped
+
   # ─────────── BACKEND ───────────
   backend:
     build: ./backend
-   # container_name: hr-backend
     environment:
-      DB_HOST: host.docker.internal   # reach host‑side Postgres
+      DB_HOST: db              # <- talk to container, not host
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASS: root123
       DB_NAME: hrdb
       DB_DIALECT: postgres
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "5000:5000"
     restart: unless-stopped
@@ -19,12 +38,14 @@ services:
   # ─────────── FRONTEND ───────────
   frontend:
     build: ./frontend
-#    container_name: hr-frontend
     depends_on:
       - backend
     ports:
       - "5173:5173"
     restart: unless-stopped
+
+volumes:
+  pgdata:
 
 
 # version: "3.8"
