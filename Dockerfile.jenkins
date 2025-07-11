@@ -2,16 +2,15 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-# Install Docker CLI and Compose Plugin
+# Install docker CLI
 RUN apt-get update && \
-    apt-get install -y docker.io && \
+    apt-get install -y docker.io docker-compose && \
     apt-get clean
 
-# optional: prove docker works
-RUN docker --version
+# Allow Jenkins user to access Docker socket
+RUN usermod -aG docker jenkins
 
 USER jenkins
-
 
 # FROM jenkins/jenkins:lts
 
