@@ -15,7 +15,7 @@ services:
   # ---------- DATABASE (PostgreSQL) ----------
   db:
     image: postgres:16
-    container_name: hr-db
+    # container_name: hr-db
     environment:
       POSTGRES_DB: hrdb
       POSTGRES_USER: postgres
@@ -38,7 +38,7 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: hr-backend
+    # container_name: hr-backend
     env_file:
       - ./backend/.env.development  # keep secrets here
     environment:
@@ -61,7 +61,7 @@ services:
   frontend:
     build:
       context: ./frontend
-    container_name: hr-frontend
+    # container_name: hr-frontend
     depends_on:
       - backend
     ports:
@@ -75,7 +75,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.jenkins
-    container_name: jenkins
+    # container_name: jenkins
     user: root
     ports:
       - "8080:8080"                 # Jenkins UI
