@@ -79,7 +79,7 @@ services:
       - "8080:8080"                 # Jenkins UI
       - "50000:50000"               # JNLP agents
     volumes:
-      - ./jenkins_home:/var/jenkins_home    # host‑path bind mount
+      - ./jenkins_data:/var/jenkins_home    # host‑path bind mount
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/app                       # Jenkins sees repo
     networks:
