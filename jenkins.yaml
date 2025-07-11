@@ -1,0 +1,17 @@
+ # ---------- JENKINS ----------
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    # container_name: jenkins
+    user: root
+    ports:
+      - "8080:8080"                 # Jenkins UI
+      - "50000:50000"               # JNLP agents
+    volumes:
+      - ./jenkins_data:/var/jenkins_home    # host‑path bind mount
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app                       # Jenkins sees repo
+    networks:
+      - hr-network
+    restart: unless-stopped
