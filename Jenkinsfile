@@ -24,7 +24,7 @@ pipeline {
     stage('Deploy') {
       steps {
         dir('/app') {
-          sh 'docker compose up -d frontend backend'
+          sh 'docker-compose up -d frontend backend'
         }
       }
     }

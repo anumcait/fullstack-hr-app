@@ -5,7 +5,6 @@ USER root
 # Install Docker CLI and Compose Plugin
 RUN apt-get update && \
     apt-get install -y docker.io && \
-    docker-compose && \   
     apt-get clean
 
 # optional: prove docker works
