@@ -1,57 +1,92 @@
 version: "3.8"
 
-# ───────────────────── VOLUMES ─────────────────────
+# ──────────── VOLUMES ────────────
 volumes:
-  jenkins_data:      # persist Jenkins jobs & config
+  pgdata:            # Persist Postgres tables & indexes
+  jenkins_data:
 
-# ───────────────────── NETWORKS ─────────────────────
+# ──────────── NETWORKS ────────────
 networks:
   hr-network:
     driver: bridge
 
-# ───────────────────── SERVICES ─────────────────────
+# ──────────── SERVICES ────────────
 services:
-  # --------------- JENKINS (CI/CD) ---------------
+  # ---------- DATABASE (PostgreSQL) ----------
+  db:
+    image: postgres:16
+    container_name: hr-db
+    environment:
+      POSTGRES_DB: hrdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"                # optional: pgAdmin access
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
+      interval: 10s
+      retries: 5
+    networks:
+      - hr-network
+    restart: unless-stopped
+
+  # ---------- BACKEND API ----------
+  backend:
+    build:
+      context: ./backend
+    container_name: hr-backend
+    env_file:
+      - ./backend/.env.development  # keep secrets here
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: root123
+      DB_NAME: hrdb
+      DB_DIALECT: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    networks:
+      - hr-network
+    restart: unless-stopped
+
+  # ---------- FRONTEND ----------
+  frontend:
+    build:
+      context: ./frontend
+    container_name: hr-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"                 # change to "80:80" if nginx prod build
+    networks:
+      - hr-network
+    restart: unless-stopped
+
+  # ---------- JENKINS ----------
   jenkins:
     build:
       context: .
-      dockerfile: Dockerfile.jenkins     # custom Jenkins image
+      dockerfile: Dockerfile.jenkins
     container_name: jenkins
-    user: root                           # required to access Docker socket
+    user: root
     ports:
-      - "8080:8080"                      # Jenkins UI
-      - "50000:50000"                    # JNLP agents
+      - "8080:8080"                 # Jenkins UI
+      - "50000:50000"               # JNLP agents
     volumes:
-      - jenkins_data:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock   # enable “docker inside Jenkins”
-      - .:/app                                       # Jenkins sees repository
+      - ./jenkins_home:/var/jenkins_home    # host‑path bind mount
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app                       # Jenkins sees repo
     networks:
       - hr-network
     restart: unless-stopped
 
-  # --------------- BACKEND API ---------------
-  backend:
-    build:
-      context: ./backend                 # assumes ./backend/Dockerfile
-    container_name: hr-backend
-    ports:
-      - "5000:5000"                      # host:container
-    networks:
-      - hr-network
-    restart: unless-stopped
 
-  # --------------- FRONTEND ---------------
-  frontend:
-    build:
-      context: ./frontend                # assumes ./frontend/Dockerfile
-    container_name: hr-frontend
-    ports:
-      - "5173:5173"                      # Vite dev server or nginx prod
-    depends_on:
-      - backend                          # wait until API is up
-    networks:
-      - hr-network
-    restart: unless-stopped
 
 
 # services:
