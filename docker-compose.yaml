@@ -22,6 +22,8 @@ services:
       POSTGRES_PASSWORD: root123
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./pg_restore:/pg_restore
+      - ./init-scripts:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"                # optional: pgAdmin access
     healthcheck:
