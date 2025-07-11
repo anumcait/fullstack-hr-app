@@ -15,7 +15,7 @@ COPY . .
 EXPOSE 5000
 
 # 4️⃣  Start the server with nodemon directly
-CMD ["node_modules/.bin/nodemon", "--legacy-watch", "index.js"]
+CMD ["sh", "-c", "node_modules/.bin/nodemon --legacy-watch index.js"]
 
 # FROM node:20
 # WORKDIR /app
