@@ -1,35 +1,91 @@
+version: "3.8"
+
+# ───────────────────── VOLUMES ─────────────────────
+volumes:
+  jenkins_data:      # persist Jenkins jobs & config
+
+# ───────────────────── NETWORKS ─────────────────────
+networks:
+  hr-network:
+    driver: bridge
+
+# ───────────────────── SERVICES ─────────────────────
 services:
+  # --------------- JENKINS (CI/CD) ---------------
   jenkins:
     build:
       context: .
-      dockerfile: Dockerfile.jenkins   # 👈 build our custom image
+      dockerfile: Dockerfile.jenkins     # custom Jenkins image
     container_name: jenkins
-    user: root                         # needs root to run docker inside
+    user: root                           # required to access Docker socket
     ports:
-      - "8080:8080"
-      - "50000:50000"
+      - "8080:8080"                      # Jenkins UI
+      - "50000:50000"                    # JNLP agents
     volumes:
-      - ./jenkins_data:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock   # keep this
-      - .:/app
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock   # enable “docker inside Jenkins”
+      - .:/app                                       # Jenkins sees repository
+    networks:
+      - hr-network
     restart: unless-stopped
 
-
+  # --------------- BACKEND API ---------------
   backend:
-    build: ./backend
+    build:
+      context: ./backend                 # assumes ./backend/Dockerfile
     container_name: hr-backend
     ports:
-      - "5000:5000"
+      - "5000:5000"                      # host:container
+    networks:
+      - hr-network
     restart: unless-stopped
 
+  # --------------- FRONTEND ---------------
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend                # assumes ./frontend/Dockerfile
     container_name: hr-frontend
     ports:
-      - "5173:5173"
-    restart: unless-stopped
+      - "5173:5173"                      # Vite dev server or nginx prod
     depends_on:
-      - backend
+      - backend                          # wait until API is up
+    networks:
+      - hr-network
+    restart: unless-stopped
+
+
+# services:
+#   jenkins:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.jenkins   # 👈 build our custom image
+#     container_name: jenkins
+#     user: root                         # needs root to run docker inside
+#     ports:
+#       - "8080:8080"
+#       - "50000:50000"
+#     volumes:
+#       - ./jenkins_data:/var/jenkins_home
+#       - /var/run/docker.sock:/var/run/docker.sock   # keep this
+#       - .:/app
+#     restart: unless-stopped
+
+
+#   backend:
+#     build: ./backend
+#     container_name: hr-backend
+#     ports:
+#       - "5000:5000"
+#     restart: unless-stopped
+
+#   frontend:
+#     build: ./frontend
+#     container_name: hr-frontend
+#     ports:
+#       - "5173:5173"
+#     restart: unless-stopped
+#     depends_on:
+#       - backend
 
 
 #     networks:
