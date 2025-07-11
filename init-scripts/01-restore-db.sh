@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "⏳ Restoring from /pg_restore/hrdb.backup..."
 set -e
 DB=hrdb
 BACKUP=/pg_restore/hrdb.backup
@@ -11,4 +12,3 @@ if [ "$count" -eq 0 ]; then
   echo "✅  Restore complete"
 else
   echo "ℹ️  $DB already populated ($count tables) – skipping restore"
-fi
