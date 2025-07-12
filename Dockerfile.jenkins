@@ -1,18 +1,26 @@
 FROM jenkins/jenkins:lts
-
 USER root
 
-# Install docker CLI
-RUN apt-get update && \
-    apt-get install -y docker.io docker-compose && \
-    git-lfs && \
-    git lfs install --system && \
+# --- Install Docker CLI + Compose plug‑in (Debian‑based image) ---
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates curl gnupg lsb-release && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    echo "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
+        > /etc/apt/sources.list.d/docker-ce.list && \
+    apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y docker-ce-cli docker-compose-plugin && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-    # Allow Jenkins user to access Docker socket
-RUN usermod -aG docker jenkins
+# Optional: git‑lfs so checkout works
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
+    apt-get update -y && \
+    apt-get install -y git-lfs && \
+    git lfs install --system
 
 USER jenkins
+
 
 # FROM jenkins/jenkins:lts
 
