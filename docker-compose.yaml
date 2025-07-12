@@ -4,6 +4,8 @@ services:
   # ─────────── DATABASE (PostgreSQL) ───────────
   db:
     image: postgres:17.5
+    ports:
+      - "5432:5432"          # ← add this
     environment:
       POSTGRES_DB: hrdb
       POSTGRES_USER: postgres
