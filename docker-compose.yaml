@@ -12,8 +12,8 @@ services:
       POSTGRES_PASSWORD: root123
     volumes:
       - pgdata:/var/lib/postgresql/data          # persistent tables
-      - ./pg_restore:/pg_restore                 # hrdb.backup lives here
-      - ./init-scripts:/docker-entrypoint-initdb.d   # auto‑restore script
+      - ${PWD}/pg_restore:/pg_restore:ro
+      - ${PWD}/init-scripts:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
       interval: 10s
