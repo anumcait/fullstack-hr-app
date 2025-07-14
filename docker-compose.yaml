@@ -3,23 +3,23 @@
 services:
   # ─────────── DATABASE (PostgreSQL) ───────────
   db:
-    image: postgres:17.5
-    environment:
-      POSTGRES_DB: hrdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root123
+    image: postgres:17
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hrdb
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ${PG_RESTORE_HOST}:/pg_restore:ro
-      - ${INIT_SCRIPTS_HOST}:/docker-entrypoint-initdb.d:ro
+      - ${INIT_SCRIPTS_HOST:-./init-scripts}/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
+      - ${PG_RESTORE_HOST:-./pg_restore}/hrdb.backup:/pg_restore/hrdb.backup:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
-      interval: 10s
-      retries: 10
-      start_period: 60s
-    restart: unless-stopped
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: [ "bash", "-c", "docker-entrypoint.sh postgres & sleep 5 && bash /docker-entrypoint-initdb.d/01-restore-db.sh && tail -f /dev/null" ]
 
   # ─────────── BACKEND ───────────
   backend:
