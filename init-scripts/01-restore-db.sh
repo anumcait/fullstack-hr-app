@@ -1,16 +1,18 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 
-DB=hrdb
-BACKUP=/pg_restore/hrdb.backup
+echo "🔁 Starting DB restore..."
 
-echo "🔧 Starting restore …"
-/usr/bin/pg_restore --no-owner --clean --if-exists -U "$POSTGRES_USER" -d "$DB" "$BACKUP"
+# Wait until Postgres is ready
+until pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do
+  echo "⏳ Waiting for database to be ready..."
+  sleep 2
+done
 
-# FLAG so Jenkins can detect completion
-touch /tmp/RESTORE_OK
+# Restore
+pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" /pg_restore/hrdb.backup
 
-echo "✅ Restore finished"
+echo "✅ Restore completed"
 
 # #!/usr/bin/env bash
 # set -e
