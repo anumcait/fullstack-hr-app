@@ -3,21 +3,19 @@
 services:
   # ─────────── DATABASE (PostgreSQL) ───────────
   db:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: hrdb
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      # → ALWAYS an absolute path in CI
-      - ${WORKSPACE}/init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
-      - ${WORKSPACE}/pg_restore/hrdb.backup:/pg_restore/hrdb.backup:ro
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+  image: postgres:17
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: hrdb
+  volumes:
+    - pgdata:/var/lib/postgresql/data
+    - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
+    - ./pg_restore/hrdb.backup:/pg_restore/hrdb.backup:ro
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
+    interval: 5s
+    retries: 10
   # ─────────── BACKEND ───────────
   backend:
     build: ./backend
@@ -28,9 +26,9 @@ services:
       DB_PASS: root123
       DB_NAME: hrdb
       DB_DIALECT: postgres
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "5000:5000"
     restart: unless-stopped
