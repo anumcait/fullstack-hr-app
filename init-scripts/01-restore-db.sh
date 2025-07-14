@@ -1,18 +1,17 @@
 #!/bin/bash
-set -e
+# /init-scripts/01-restore-db.sh
 
-echo "🔁 Starting DB restore..."
-
-# Wait until Postgres is ready
-until pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do
-  echo "⏳ Waiting for database to be ready..."
+# Wait for PostgreSQL to be ready
+echo "Waiting for PostgreSQL to become ready..."
+until pg_isready -U postgres -d hrdb; do
   sleep 2
 done
 
-# Restore
-pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" /pg_restore/hrdb.backup
+# Restore the database from the backup file
+echo "Restoring database from backup..."
+psql -U postgres -d hrdb -f /pg_restore/hrdb.backup
 
-echo "✅ Restore completed"
+echo "Database restore completed."
 
 # #!/usr/bin/env bash
 # set -e
