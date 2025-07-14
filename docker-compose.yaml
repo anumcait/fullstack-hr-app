@@ -18,15 +18,7 @@ services:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
       timeout: 5s
-      retries: 5
-    command: >
-      bash -c "
-        docker-entrypoint.sh postgres &
-        sleep 5 &&
-        /docker-entrypoint-initdb.d/01-restore-db.sh &&
-        touch /tmp/RESTORE_OK &&
-        tail -f /dev/null
-      "
+      retries: 10
   # ─────────── BACKEND ───────────
   backend:
     build: ./backend
