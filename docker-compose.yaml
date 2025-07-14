@@ -12,8 +12,10 @@ services:
       POSTGRES_DB: hrdb
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ${INIT_SCRIPTS_HOST:-./init-scripts}/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
-      - ${PG_RESTORE_HOST:-./pg_restore}/hrdb.backup:/pg_restore/hrdb.backup:ro
+      # restore script (MUST be executable + LF line‑endings)
+      - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
+      # binary backup
+      - ./pg_restore/hrdb.backup:/pg_restore/hrdb.backup:ro
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
