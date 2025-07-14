@@ -19,8 +19,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    command: [ "bash", "-c", "docker-entrypoint.sh postgres & sleep 5 && bash /docker-entrypoint-initdb.d/01-restore-db.sh && tail -f /dev/null" ]
-
+    command: >
+      bash -c "
+        docker-entrypoint.sh postgres &
+        sleep 5 &&
+        /docker-entrypoint-initdb.d/01-restore-db.sh &&
+        touch /tmp/RESTORE_OK &&
+        tail -f /dev/null
+      "
   # ─────────── BACKEND ───────────
   backend:
     build: ./backend
