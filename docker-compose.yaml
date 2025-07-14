@@ -2,7 +2,6 @@
 
 services:
   # ─────────── DATABASE (PostgreSQL) ───────────
-services:
   db:
     image: postgres:17
     environment:
