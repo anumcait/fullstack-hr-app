@@ -1,30 +1,44 @@
 #!/usr/bin/env bash
 set -e
 
-echo "⏳ Checking if restore is needed …"
-
 DB=hrdb
 BACKUP=/pg_restore/hrdb.backup
 
-count=$(psql -U "$POSTGRES_USER" -d "$DB" -t \
-        -c "SELECT COUNT(*) FROM pg_tables WHERE schemaname='public';" | xargs)
+echo "🔧 Starting restore …"
+/usr/bin/pg_restore --no-owner --clean --if-exists -U "$POSTGRES_USER" -d "$DB" "$BACKUP"
 
-if [ "$count" -eq 0 ]; then
-  echo "📦 Restoring from $BACKUP into $DB …"
+# FLAG so Jenkins can detect completion
+touch /tmp/RESTORE_OK
 
-  # ── allow 'schema already exists' to be ignored ──
-  pg_restore --verbose --no-owner --clean --if-exists \
-             -U "$POSTGRES_USER" -d "$DB" "$BACKUP" || status=$?
+echo "✅ Restore finished"
 
-  # If pg_restore exits 1 (warnings) treat it as success
-  if [ "${status:-0}" -gt 1 ]; then
-    echo "❌ pg_restore failed (status=$status)"; exit $status
-  fi
+# #!/usr/bin/env bash
+# set -e
 
-  echo "✅ Restore finished"
-else
-  echo "ℹ️  $DB already has $count table(s) – skipping restore"
-fi
+# echo "⏳ Checking if restore is needed …"
+
+# DB=hrdb
+# BACKUP=/pg_restore/hrdb.backup
+
+# count=$(psql -U "$POSTGRES_USER" -d "$DB" -t \
+#         -c "SELECT COUNT(*) FROM pg_tables WHERE schemaname='public';" | xargs)
+
+# if [ "$count" -eq 0 ]; then
+#   echo "📦 Restoring from $BACKUP into $DB …"
+
+#   # ── allow 'schema already exists' to be ignored ──
+#   pg_restore --verbose --no-owner --clean --if-exists \
+#              -U "$POSTGRES_USER" -d "$DB" "$BACKUP" || status=$?
+
+#   # If pg_restore exits 1 (warnings) treat it as success
+#   if [ "${status:-0}" -gt 1 ]; then
+#     echo "❌ pg_restore failed (status=$status)"; exit $status
+#   fi
+
+#   echo "✅ Restore finished"
+# else
+#   echo "ℹ️  $DB already has $count table(s) – skipping restore"
+# fi
 
 
 # #!/usr/bin/env bash
