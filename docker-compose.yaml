@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     container_name: hr_postgres
@@ -6,12 +8,16 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: hrdb
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh
-      - ./pg_restore:/pg_restore
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
+      - ./pg_restore:/pg_restore:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
+      interval: 5s
+      retries: 10
 
 # # version: "3.8"
 
@@ -50,44 +56,44 @@ services:
 #       - "5000:5000"
 #     restart: unless-stopped
 
-#   # ─────────── FRONTEND ───────────
-#   frontend:
-#     build: ./frontend
-#     depends_on:
-#       - backend
-#     ports:
-#       - "5173:5173"
-#     restart: unless-stopped
-#   # db:
-#   # image: postgres:17
-#   # environment:
-#   #   POSTGRES_USER: postgres
-#   #   POSTGRES_PASSWORD: postgres
-#   #   POSTGRES_DB: hrdb
-#   # volumes:
-#   #   - pgdata:/var/lib/postgresql/data
-#   #   - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
-#   #   - ./pg_restore/hrdb.backup:/pg_restore/hrdb.backup:ro
-#   # healthcheck:
-#   #   test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
-#   #   interval: 5s
-#   #   retries: 10
-#   # # ─────────── BACKEND ───────────
-#   # backend:
-#   #   build: ./backend
-#   #   environment:
-#   #     DB_HOST: db              # <- talk to container, not host
-#   #     DB_PORT: 5432
-#   #     DB_USER: postgres
-#   #     DB_PASS: root123
-#   #     DB_NAME: hrdb
-#   #     DB_DIALECT: postgres
-#   #   depends_on:
-#   #     db:
-#   #       condition: service_healthy
-#   #   ports:
-#   #     - "5000:5000"
-#   #   restart: unless-stopped
+  # ─────────── FRONTEND ───────────
+  # frontend:
+  #   build: ./frontend
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "5173:5173"
+  #   restart: unless-stopped
+  # db:
+  # image: postgres:17
+  # environment:
+  #   POSTGRES_USER: postgres
+  #   POSTGRES_PASSWORD: postgres
+  #   POSTGRES_DB: hrdb
+  # volumes:
+  #   - pgdata:/var/lib/postgresql/data
+  #   - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
+  #   - ./pg_restore/hrdb.backup:/pg_restore/hrdb.backup:ro
+  # healthcheck:
+  #   test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
+  #   interval: 5s
+  #   retries: 10
+  # # ─────────── BACKEND ───────────
+  # backend:
+  #   build: ./backend
+  #   environment:
+  #     DB_HOST: db              # <- talk to container, not host
+  #     DB_PORT: 5432
+  #     DB_USER: postgres
+  #     DB_PASS: root123
+  #     DB_NAME: hrdb
+  #     DB_DIALECT: postgres
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   ports:
+  #     - "5000:5000"
+  #   restart: unless-stopped
 
 #   # # ─────────── FRONTEND ───────────
 #   # frontend:
