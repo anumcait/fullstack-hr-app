@@ -1,17 +1,25 @@
-#!/bin/bash
-# /init-scripts/01-restore-db.sh
+#!/usr/bin/env bash
+# init-scripts/01-restore-db.sh
+set -euo pipefail
 
-# Wait for PostgreSQL to be ready
-echo "Waiting for PostgreSQL to become ready..."
-until pg_isready -U postgres -d hrdb; do
+DB=hrdb
+USER=postgres
+BACKUP_FILE=/pg_restore/hrdb.backup   # make sure this path is mounted!
+
+echo "⏳ Waiting for PostgreSQL to become ready..."
+until pg_isready -U "$USER" -d "$DB" >/dev/null 2>&1; do
   sleep 2
 done
+echo "✅ PostgreSQL is accepting connections."
 
-# Restore the database from the backup file
-echo "Restoring database from backup..."
-psql -U postgres -d hrdb -f /pg_restore/hrdb.backup
+# If you dumped with pg_dump -Fc (custom format) use pg_restore:
+echo "📦 Restoring $DB from backup ($BACKUP_FILE)..."
+pg_restore --clean --if-exists --no-owner \
+           -U "$USER" -d "$DB" "$BACKUP_FILE"
 
-echo "Database restore completed."
+echo "🗄️  Restore completed for $DB."
+echo "✅ Restore finished"
+
 
 # #!/usr/bin/env bash
 # set -e
