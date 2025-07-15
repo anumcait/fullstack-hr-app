@@ -8,8 +8,8 @@ services:
       POSTGRES_DB: hrdb
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d      # <— folder‑to‑folder
-      - ./pg_restore:/pg_restore                       # backup file folder
+      - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh
+      - ./pg_restore:/pg_restore
     ports:
       - "5432:5432"
 volumes:
