@@ -1,23 +1,24 @@
-# Dockerfile.jenkins  (hard‑coded codename)
-
 FROM jenkins/jenkins:lts
+
 USER root
 
 RUN install -m 0755 -d /etc/apt/keyrings \
  && curl -fsSL https://download.docker.com/linux/debian/gpg \
       | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-      https://download.docker.com/linux/debian bookworm stable" \
+      https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
       > /etc/apt/sources.list.d/docker.list \
  && curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash \
  && apt-get update -y \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         docker-ce-cli docker-compose-plugin \
         git-lfs openssh-client ca-certificates curl lsb-release gnupg \
+        dos2unix \
  && git lfs install --system \
  && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/*
 
 RUN groupadd -g 998 docker && usermod -aG docker jenkins
+
 USER jenkins
 
 
