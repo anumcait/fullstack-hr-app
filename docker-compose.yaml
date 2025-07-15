@@ -1,20 +1,21 @@
 
 services:
   db:
-    container_name: hr_postgres
-    image: postgres:17
+    image: postgres:16
+    container_name: hr_postgres  # if you're using it
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: hrdb
-    ports: ["5432:5432"]
+    ports:
+      - "5432:5432"
     volumes:
-      # all scripts inside go to initdb.d
-      - ${WORKSPACE}/db-init:/docker-entrypoint-initdb.d:ro
-      # backup directory
-      - ${WORKSPACE}/pg_restore:/pg_restore:ro
-      # database files
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 
 # # version: "3.8"
