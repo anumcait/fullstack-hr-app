@@ -1,7 +1,8 @@
 services:
   db:
     container_name: hr_postgres
-    image: postgres:14
+    image: postgres:14               # ↙ use any Postgres version you like
+    restart: always
     ports:
       - "5432:5432"
     environment:
@@ -9,13 +10,15 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: hrdb
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      # init / restore scripts
       - ./init-scripts:/docker-entrypoint-initdb.d
-      - ./pg_restore:/pg_restore    # .backup lives here
-    restart: always
+      # where the .backup file lives
+      - ./pg_restore:/pg_restore
+      # Postgres data volume (named). With -p simple-hr this becomes simple-hr_pgdata
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  pgdata:      # <— leave blank; Compose will create it
 
 # # version: "3.8"
 
