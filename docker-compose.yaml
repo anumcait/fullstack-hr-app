@@ -1,25 +1,19 @@
 
 services:
   db:
-    container_name: hr_postgres
     image: postgres:17
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: hrdb
     ports: ["5432:5432"]
-
-    # IMPORTANT: bind‑mount the *file* and *folder* **with absolute paths** so
-    # Jenkins & Docker never mistake them for missing paths.
     volumes:
+      # all scripts inside go to initdb.d
+      - ${WORKSPACE}/db-init:/docker-entrypoint-initdb.d:ro
+      # backup directory
+      - ${WORKSPACE}/pg_restore:/pg_restore:ro
+      # database files
       - pgdata:/var/lib/postgresql/data
-      - "${WORKSPACE}/db-init/db-restore.sh:/docker-entrypoint-initdb.d/98-restore.sh:ro"
-      - "${WORKSPACE}/pg_restore:/pg_restore:ro"
-
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-hrdb}"]
-      interval: 5s
-      retries: 10
 
 
 # # version: "3.8"
