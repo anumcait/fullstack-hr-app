@@ -1,22 +1,25 @@
 
 services:
   db:
-    container_name: hr_postgres
     image: postgres:17
+    container_name: hr_postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: hrdb
-    ports:
-      - "5432:5432"
+    ports: ["5432:5432"]
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db-init/db-restore.sh:/docker-entrypoint-initdb.d/98-restore.sh:ro
-      - ./pg_restore:/pg_restore:ro
+      - "${PWD}/db-init/db-restore.sh:/docker-entrypoint-initdb.d/98-restore.sh:ro"
+      - "${PWD}/pg_restore:/pg_restore:ro"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
       interval: 5s
       retries: 10
+
+volumes:
+  pgdata:
+
 
 # # version: "3.8"
 
