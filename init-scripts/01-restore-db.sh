@@ -1,24 +1,36 @@
-#!/usr/bin/env bash
-# init-scripts/01-restore-db.sh
-set -euo pipefail
+#!/bin/bash
 
-DB=hrdb
-USER=postgres
-BACKUP_FILE=/pg_restore/hrdb.backup   # make sure this path is mounted!
-
-echo "⏳ Waiting for PostgreSQL to become ready..."
-until pg_isready -U "$USER" -d "$DB" >/dev/null 2>&1; do
+echo "Waiting for PostgreSQL to become ready..."
+until pg_isready -U postgres -d hrdb; do
   sleep 2
 done
-echo "✅ PostgreSQL is accepting connections."
 
-# If you dumped with pg_dump -Fc (custom format) use pg_restore:
-echo "📦 Restoring $DB from backup ($BACKUP_FILE)..."
-pg_restore --clean --if-exists --no-owner \
-           -U "$USER" -d "$DB" "$BACKUP_FILE"
+echo "Restoring database from backup..."
+psql -U postgres -d hrdb -f /pg_restore/hrdb.backup
 
-echo "🗄️  Restore completed for $DB."
 echo "✅ Restore finished"
+
+# #!/usr/bin/env bash
+# # init-scripts/01-restore-db.sh
+# set -euo pipefail
+
+# DB=hrdb
+# USER=postgres
+# BACKUP_FILE=/pg_restore/hrdb.backup   # make sure this path is mounted!
+
+# echo "⏳ Waiting for PostgreSQL to become ready..."
+# until pg_isready -U "$USER" -d "$DB" >/dev/null 2>&1; do
+#   sleep 2
+# done
+# echo "✅ PostgreSQL is accepting connections."
+
+# # If you dumped with pg_dump -Fc (custom format) use pg_restore:
+# echo "📦 Restoring $DB from backup ($BACKUP_FILE)..."
+# pg_restore --clean --if-exists --no-owner \
+#            -U "$USER" -d "$DB" "$BACKUP_FILE"
+
+# echo "🗄️  Restore completed for $DB."
+# echo "✅ Restore finished"
 
 
 # #!/usr/bin/env bash
