@@ -1,3 +1,6 @@
 #!/bin/bash
-psql -U postgres -d hrdb < /docker-entrypoint-initdb.d/hrdb-backup.sql
+set -e
+
+echo "⏳ Restoring …"
+/usr/bin/psql -U postgres -d hrdb < /pg_restore/backup.sql
 echo "✅ Restore finished"
