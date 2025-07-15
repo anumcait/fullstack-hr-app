@@ -9,9 +9,13 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      # New named volume for data
       - pgdata:/var/lib/postgresql/data
-      - ${PWD}/pg_restore:/pg_restore          # <— absolute path
-      - ${PWD}/init-scripts:/docker-entrypoint-initdb.d
+      # Mount the restore script folder
+      - ./init-scripts:/docker-entrypoint-initdb.d
+      # Mount the backup file
+      - ./pg_restore:/pg_restore
+
 volumes:
   pgdata:
 
