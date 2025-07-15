@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "⏳ Waiting for PostgreSQL to accept connections…"
-until pg_isready -U postgres -d "$POSTGRES_DB" >/dev/null 2>&1; do
+echo "⏳ Waiting for Postgres..."
+until pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; do
   sleep 1
 done
-echo "✅ PostgreSQL is up."
+echo "✅ Postgres is ready."
 
-echo "📦 Restoring $POSTGRES_DB from /pg_restore/hrdb.backup …"
-# Drop + recreate database to guarantee a clean restore
-psql -U postgres -c "DROP DATABASE IF EXISTS \"$POSTGRES_DB\";"
-psql -U postgres -c "CREATE DATABASE \"$POSTGRES_DB\";"
+echo "📦 Restoring $POSTGRES_DB from /pg_restore/hrdb.backup ..."
+# Drop & recreate to guarantee a clean restore
+psql -U "$POSTGRES_USER" -c "DROP DATABASE IF EXISTS \"$POSTGRES_DB\";"
+psql -U "$POSTGRES_USER" -c "CREATE DATABASE \"$POSTGRES_DB\";"
+
 pg_restore --no-owner --clean --if-exists \
-           -U postgres -d "$POSTGRES_DB" /pg_restore/hrdb.backup
+           -U "$POSTGRES_USER" -d "$POSTGRES_DB" /pg_restore/hrdb.backup
 
 echo "✅ Restore finished"
 
