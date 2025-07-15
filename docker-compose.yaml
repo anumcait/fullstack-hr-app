@@ -1,8 +1,6 @@
-version: "3.8"
-
 services:
   db:
-    image: postgres:14
+    image: postgres:17
     container_name: hr_postgres
     environment:
       POSTGRES_USER: postgres
