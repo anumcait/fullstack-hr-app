@@ -12,8 +12,6 @@ services:
       - ./pg_restore:/pg_restore
     ports:
       - "5432:5432"
-volumes:
-  pgdata:
 
 # # version: "3.8"
 
@@ -99,27 +97,27 @@ volumes:
 #   #   ports:
 #   #     - "5173:5173"
 #   #   restart: unless-stopped
-#   jenkins:
-#     build:
-#       context: .                     # repo root (where Dockerfile.jenkins lives)
-#       dockerfile: Dockerfile.jenkins
-#     container_name: hr-jenkins
-#     user: root                       # so Jenkins can talk to /var/run/docker.sock
-#     ports:
-#       - "8080:8080"                  # Jenkins UI
-#       - "50000:50000"                # JNLP agents (optional)
-#     volumes:
-#       - ./jenkins_data:/var/jenkins_home   # persist jobs & plugins
-#       - /var/run/docker.sock:/var/run/docker.sock
-#       - .:/workspace                 # pipeline sees repo here
-#     networks: [ hr-network ]
-#     restart: unless-stopped
+  jenkins:
+    build:
+      context: .                     # repo root (where Dockerfile.jenkins lives)
+      dockerfile: Dockerfile.jenkins
+    container_name: hr-jenkins
+    user: root                       # so Jenkins can talk to /var/run/docker.sock
+    ports:
+      - "8080:8080"                  # Jenkins UI
+      - "50000:50000"                # JNLP agents (optional)
+    volumes:
+      - ./jenkins_data:/var/jenkins_home   # persist jobs & plugins
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/workspace                 # pipeline sees repo here
+    networks: [ hr-network ]
+    restart: unless-stopped
 
-# networks:
-#   hr-network:
-#     driver: bridge
-# volumes:
-#   pgdata:
+networks:
+  hr-network:
+    driver: bridge
+volumes:
+  pgdata:
 
 
 # # version: "3.8"
