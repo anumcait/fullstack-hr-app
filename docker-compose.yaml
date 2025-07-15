@@ -1,21 +1,20 @@
 
 services:
   db:
-    image: postgres:16
-    container_name: hr_postgres  # if you're using it
+    image: postgres:17
+    container_name: hr_postgres
     environment:
+      POSTGRES_DB: hrdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: hrdb
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
 
 
 # # version: "3.8"
