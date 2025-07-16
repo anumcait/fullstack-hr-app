@@ -37,7 +37,27 @@ services:
       - .:/workspace              # job has access to repo
     networks: [hr-network]
     restart: unless-stopped
-
+  backend:
+    build:
+      context: ./backend
+    container_name: hr-backend
+    env_file:
+      - ./backend/.env.development  # keep secrets here
+    # environment:
+    #   DB_HOST: db
+    #   DB_PORT: 5432
+    #   DB_USER: postgres
+    #   DB_PASS: root123
+    #   DB_NAME: hrdb
+    #   DB_DIALECT: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    networks:
+      - hr-network
+    restart: unless-stopped
   # ─────────── BACKEND & FRONTEND (optional) ───────────
   # Uncomment when you’re ready to run the full stack
   # backend:
@@ -66,27 +86,7 @@ services:
   #   networks: [hr-network]
   #   restart: unless-stopped
   # #   # ---------- BACKEND API ----------
-  backend:
-    build:
-      context: ./backend
-    container_name: hr-backend
-    env_file:
-      - ./backend/.env.development  # keep secrets here
-    # environment:
-    #   DB_HOST: db
-    #   DB_PORT: 5432
-    #   DB_USER: postgres
-    #   DB_PASS: root123
-    #   DB_NAME: hrdb
-    #   DB_DIALECT: postgres
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "5000:5000"
-    networks:
-      - hr-network
-    restart: unless-stopped
+
 
   # ---------- FRONTEND ----------
   frontend:
@@ -101,6 +101,37 @@ services:
       - hr-network
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/etc/prometheus
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - hr-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - hr-network
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - hr-network
+    restart: unless-stopped
 
 # ─────────── Networks & Volumes ───────────
 networks:
@@ -109,6 +140,8 @@ networks:
 
 volumes:
   pgdata:
+  prometheus_data:
+  grafana_data:
 
 
 # # version: "3.8"
