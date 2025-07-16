@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_DB:       hrdb
       POSTGRES_USER:     postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: root123
     volumes:
       - pgdata:/var/lib/postgresql/data
       # optional: mount backup + init script
@@ -42,13 +42,43 @@ services:
 
   # ─────────── BACKEND & FRONTEND (optional) ───────────
   # Uncomment when you’re ready to run the full stack
+  # backend:
+  #   build: ./backend
+  #   environment:
+  #     DB_HOST: db
+  #     DB_PORT: 5432
+  #     DB_USER: postgres
+  #     DB_PASS: postgres
+  #     DB_NAME: hrdb
+  #     DB_DIALECT: postgres
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   ports:
+  #     - "5000:5000"
+  #   networks: [hr-network]
+  #   restart: unless-stopped
+  
+  # frontend:
+  #   build: ./frontend
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "5173:5173"
+  #   networks: [hr-network]
+  #   restart: unless-stopped
+  # #   # ---------- BACKEND API ----------
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      container_name: hr-backend
+    env_file:
+      - ./backend/.env.development  # keep secrets here
     environment:
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: postgres
-      DB_PASS: postgres
+      DB_PASS: root123
       DB_NAME: hrdb
       DB_DIALECT: postgres
     depends_on:
@@ -56,17 +86,23 @@ services:
         condition: service_healthy
     ports:
       - "5000:5000"
-    networks: [hr-network]
+    networks:
+      - hr-network
     restart: unless-stopped
-  
+
+  # ---------- FRONTEND ----------
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      container_name: hr-frontend
     depends_on:
       - backend
     ports:
-      - "5173:5173"
-    networks: [hr-network]
+      - "5173:5173"                 # change to "80:80" if nginx prod build
+    networks:
+      - hr-network
     restart: unless-stopped
+
 
 # ─────────── Networks & Volumes ───────────
 networks:
