@@ -71,7 +71,7 @@ services:
   backend:
     build:
       context: ./backend
-      container_name: hr-backend
+    container_name: hr-backend
     env_file:
       - ./backend/.env.development  # keep secrets here
     environment:
@@ -94,7 +94,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      container_name: hr-frontend
+    container_name: hr-frontend
     depends_on:
       - backend
     ports:
