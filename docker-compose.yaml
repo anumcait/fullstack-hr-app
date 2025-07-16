@@ -1,125 +1,78 @@
+version: "3.8"
 
 services:
+  # ─────────── DATABASE (PostgreSQL) ───────────
   db:
     image: postgres:17
     container_name: hr_postgres
     environment:
-      POSTGRES_DB: hrdb
-      POSTGRES_USER: postgres
+      POSTGRES_DB:       hrdb
+      POSTGRES_USER:     postgres
       POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # optional: mount backup + init script
+      # - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
+      # - ./pg_restore/hrdb.backup:/pg_restore/hrdb.backup:ro
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
-      retries: 5
+      timeout: 3s
+      retries: 10
     ports:
       - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+    networks: [hr-network]
 
-
-# # version: "3.8"
-
-# services:
-#   # ─────────── DATABASE (PostgreSQL) ───────────
-#   services:
-#   # ─────────── DATABASE (PostgreSQL) ───────────
-#   db:
-#     image: postgres:17
-#     environment:
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: postgres
-#       POSTGRES_DB: hrdb
-#     volumes:
-#       - pgdata:/var/lib/postgresql/data
-#       - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
-#       - ./pg_restore/hrdb.backup:/pg_restore/hrdb.backup:ro
-#     healthcheck:
-#       test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
-#       interval: 5s
-#       retries: 10
-#   # ─────────── BACKEND ───────────
-#   backend:
-#     build: ./backend
-#     environment:
-#       DB_HOST: db
-#       DB_PORT: 5432
-#       DB_USER: postgres
-#       DB_PASS: postgres
-#       DB_NAME: hrdb
-#       DB_DIALECT: postgres
-#     depends_on:
-#       db:
-#         condition: service_healthy
-#     ports:
-#       - "5000:5000"
-#     restart: unless-stopped
-
-  # ─────────── FRONTEND ───────────
-  # frontend:
-  #   build: ./frontend
-  #   depends_on:
-  #     - backend
-  #   ports:
-  #     - "5173:5173"
-  #   restart: unless-stopped
-  # db:
-  # image: postgres:17
-  # environment:
-  #   POSTGRES_USER: postgres
-  #   POSTGRES_PASSWORD: postgres
-  #   POSTGRES_DB: hrdb
-  # volumes:
-  #   - pgdata:/var/lib/postgresql/data
-  #   - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
-  #   - ./pg_restore/hrdb.backup:/pg_restore/hrdb.backup:ro
-  # healthcheck:
-  #   test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
-  #   interval: 5s
-  #   retries: 10
-  # # ─────────── BACKEND ───────────
-  # backend:
-  #   build: ./backend
-  #   environment:
-  #     DB_HOST: db              # <- talk to container, not host
-  #     DB_PORT: 5432
-  #     DB_USER: postgres
-  #     DB_PASS: root123
-  #     DB_NAME: hrdb
-  #     DB_DIALECT: postgres
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   ports:
-  #     - "5000:5000"
-  #   restart: unless-stopped
-
-#   # # ─────────── FRONTEND ───────────
-#   # frontend:
-#   #   build: ./frontend
-#   #   depends_on:
-#   #     - backend
-#   #   ports:
-#   #     - "5173:5173"
-#   #   restart: unless-stopped
+  # ─────────── JENKINS (CI) ───────────
   jenkins:
     build:
-      context: .                     # repo root (where Dockerfile.jenkins lives)
+      context: .                  # assumes Dockerfile.jenkins is in repo root
       dockerfile: Dockerfile.jenkins
     container_name: hr-jenkins
-    user: root                       # so Jenkins can talk to /var/run/docker.sock
+    user: root                    # so Jenkins can access /var/run/docker.sock
     ports:
-      - "8080:8080"                  # Jenkins UI
-      - "50000:50000"                # JNLP agents (optional)
+      - "8080:8080"               # Jenkins UI
+      - "50000:50000"             # JNLP agents (optional)
     volumes:
-      - ./jenkins_data:/var/jenkins_home   # persist jobs & plugins
+      - ./jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/workspace                 # pipeline sees repo here
-    networks: [ hr-network ]
+      - .:/workspace              # job has access to repo
+    networks: [hr-network]
     restart: unless-stopped
 
+  # ─────────── BACKEND & FRONTEND (optional) ───────────
+  # Uncomment when you’re ready to run the full stack
+  backend:
+    build: ./backend
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: hrdb
+      DB_DIALECT: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    networks: [hr-network]
+    restart: unless-stopped
+  
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    networks: [hr-network]
+    restart: unless-stopped
+
+# ─────────── Networks & Volumes ───────────
 networks:
   hr-network:
     driver: bridge
+
 volumes:
   pgdata:
 
