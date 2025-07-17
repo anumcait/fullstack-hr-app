@@ -107,8 +107,8 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - prometheus_data:/etc/prometheus
-      - ./monitoring:/etc/prometheus
+      # - prometheus_data:/etc/prometheus
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - hr-network
     restart: unless-stopped
