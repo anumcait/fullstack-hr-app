@@ -108,7 +108,7 @@ services:
       - "9090:9090"
     volumes:
       - prometheus_data:/etc/prometheus
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus:/etc/prometheus:ro
       #- prometheus:/etc/prometheus:ro
     networks:
       - hr-network
@@ -143,6 +143,7 @@ volumes:
   pgdata:
   prometheus_data:
   grafana_data:
+
 
 
 # # version: "3.8"
