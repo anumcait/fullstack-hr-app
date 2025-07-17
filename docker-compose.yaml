@@ -108,7 +108,8 @@ services:
       - "9090:9090"
     volumes:
       # - prometheus_data:/etc/prometheus
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      # - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus:/etc/prometheus:ro
     networks:
       - hr-network
     restart: unless-stopped
