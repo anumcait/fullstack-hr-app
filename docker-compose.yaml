@@ -108,7 +108,7 @@ services:
       - "9090:9090"
     volumes:
       - prometheus_data:/etc/prometheus
-      - $WORKSPACE/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      #- $WORKSPACE/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       #- prometheus:/etc/prometheus:ro
     networks:
       - hr-network
