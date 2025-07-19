@@ -143,7 +143,7 @@ networks:
     driver: bridge
 
 volumes:
-  pgdata:
+  # pgdata:
   prometheus_data:
   grafana_data:
 
