@@ -145,6 +145,7 @@ networks:
 
 volumes:
   pgdata:
+  pg_restore:
   prometheus_data:
   grafana_data:
 
