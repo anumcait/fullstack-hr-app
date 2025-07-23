@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./pg_restore:/pg_backup:rw
+      - pg_restore:/pg_backup
      # - pgdata:/var/lib/postgresql/data
       # optional: mount backup + init script
       # - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
