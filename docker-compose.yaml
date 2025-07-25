@@ -79,7 +79,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /d/Fullstack-hr-app/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks: [hr-network]
     restart: unless-stopped
 
