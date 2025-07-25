@@ -10,10 +10,11 @@ services:
       POSTGRES_USER:     postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-     # - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
       #- ./pg_restore:/pg_backup
       - /d/Fullstack-hr-app/pg_restore:/pg_backup
-      - /d/Fullstack-hr-app/pgdata:/var/lib/postgresql/data
+      - ./pgdata-backup:/var/lib/postgresql/data
+      #- /d/Fullstack-hr-app/pgdata:/var/lib/postgresql/data
      # - pgdata:/var/lib/postgresql/data
       # optional: mount backup + init script
       # - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
@@ -159,7 +160,7 @@ networks:
     driver: bridge
 
 volumes:
-  #pgdata:
+  pgdata:
   prometheus_data:
   grafana_data:
   loki_data:
