@@ -14,7 +14,7 @@ services:
       #- ./pg_restore:/pg_backup
       - /d/Fullstack-hr-app/pg_restore:/pg_backup
       #- ./pgdata-backup:/var/lib/postgresql/data
-      - ./pgdata:/var/lib/postgresql/data
+      - ./pgdata-new:/var/lib/postgresql/data
       #- /d/Fullstack-hr-app/pgdata:/var/lib/postgresql/data
      # - pgdata:/var/lib/postgresql/data
       # optional: mount backup + init script
