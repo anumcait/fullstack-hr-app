@@ -10,7 +10,7 @@ services:
       POSTGRES_USER:     postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      #- pgdata:/var/lib/postgresql/data
       #- ./pg_restore:/pg_backup
       - /d/Fullstack-hr-app/pg_restore:/pg_backup
       - ./pgdata-backup:/var/lib/postgresql/data
@@ -160,7 +160,7 @@ networks:
     driver: bridge
 
 volumes:
-  pgdata:
+  #pgdata:
   prometheus_data:
   grafana_data:
   loki_data:
