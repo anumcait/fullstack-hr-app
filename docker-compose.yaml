@@ -1,20 +1,17 @@
+version: '3.9'
+
 services:
-  # ─────────── DATABASE (PostgreSQL) ───────────
+  # ────────────── DATABASE (PostgreSQL) ──────────────
   db:
     image: postgres:17
     container_name: hr_postgres
     environment:
-      POSTGRES_DB:       hrdb
-      POSTGRES_USER:     postgres
+      POSTGRES_DB: hrdb
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
-      #- ./pg_restore:/pg_backup
-      - /d/Fullstack-hr-app/pg_restore:/pg_backup
-     # - pgdata:/var/lib/postgresql/data
-      # optional: mount backup + init script
-      # - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
-      # - ./pg_restore/hrdb.backup:/pg_restore/hrdb.backup:ro
+      - ./pg_restore:/pg_backup
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
@@ -25,74 +22,39 @@ services:
     restart: unless-stopped
     networks: [hr-network]
 
-  # ─────────── JENKINS (CI) ───────────
+  # ────────────── JENKINS (CI/CD) ──────────────
   jenkins:
     build:
-      context: .                  # assumes Dockerfile.jenkins is in repo root
+      context: .
       dockerfile: Dockerfile.jenkins
     container_name: hr-jenkins
-    user: root                    # so Jenkins can access /var/run/docker.sock
+    user: root
     ports:
-      - "8080:8080"               # Jenkins UI
-      - "50000:50000"             # JNLP agents (optional)
+      - "8080:8080"
+      - "50000:50000"
     volumes:
       - ./jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/workspace              # job has access to repo
+      - .:/workspace
     networks: [hr-network]
     restart: unless-stopped
+
+  # ────────────── BACKEND ──────────────
   backend:
     build:
       context: ./backend
     container_name: hr-backend
     env_file:
-      - ./backend/.env.development  # keep secrets here
-    # environment:
-    #   DB_HOST: db
-    #   DB_PORT: 5432
-    #   DB_USER: postgres
-    #   DB_PASS: root123
-    #   DB_NAME: hrdb
-    #   DB_DIALECT: postgres
+      - ./backend/.env.development
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "5000:5000"
-    networks:
-      - hr-network
+    networks: [hr-network]
     restart: unless-stopped
-  # ─────────── BACKEND & FRONTEND (optional) ───────────
-  # Uncomment when you’re ready to run the full stack
-  # backend:
-  #   build: ./backend
-  #   environment:
-  #     DB_HOST: db
-  #     DB_PORT: 5432
-  #     DB_USER: postgres
-  #     DB_PASS: postgres
-  #     DB_NAME: hrdb
-  #     DB_DIALECT: postgres
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   ports:
-  #     - "5000:5000"
-  #   networks: [hr-network]
-  #   restart: unless-stopped
-  
-  # frontend:
-  #   build: ./frontend
-  #   depends_on:
-  #     - backend
-  #   ports:
-  #     - "5173:5173"
-  #   networks: [hr-network]
-  #   restart: unless-stopped
-  # #   # ---------- BACKEND API ----------
 
-
-  # ---------- FRONTEND ----------
+  # ────────────── FRONTEND ──────────────
   frontend:
     build:
       context: ./frontend
@@ -100,46 +62,92 @@ services:
     depends_on:
       - backend
     ports:
-      - "5173:5173"                 # change to "80:80" if nginx prod build
-    networks:
-      - hr-network
+      - "5173:5173"
+    networks: [hr-network]
     restart: unless-stopped
 
+  # ────────────── PROMETHEUS ──────────────
   prometheus:
-    build:
-      context: ./prometheus
+    image: prom/prometheus
     container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
-      - prometheus_data:/etc/prometheus
-      #- $WORKSPACE/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      #- prometheus:/etc/prometheus:ro
-    networks:
-      - hr-network
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks: [hr-network]
     restart: unless-stopped
 
+  # ────────────── GRAFANA ──────────────
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana
     container_name: grafana
     ports:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-    networks:
-      - hr-network
+    networks: [hr-network]
     restart: unless-stopped
 
+  # ────────────── NODE EXPORTER ──────────────
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter
     container_name: node-exporter
     ports:
       - "9100:9100"
-    networks:
-      - hr-network
+    networks: [hr-network]
     restart: unless-stopped
 
-# ─────────── Networks & Volumes ───────────
+  # ────────────── LOKI ──────────────
+  loki:
+    image: grafana/loki:2.9.3
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    networks: [hr-network]
+    restart: unless-stopped
+
+  # ────────────── PROMTAIL ──────────────
+  promtail:
+    image: grafana/promtail:2.9.3
+    container_name: promtail
+    volumes:
+      - /var/log:/var/log
+      - ./promtail-config.yaml:/etc/promtail/config.yaml
+    networks: [hr-network]
+    restart: unless-stopped
+
+  # ────────────── SWAGGER UI (Optional) ──────────────
+  swagger:
+    image: swaggerapi/swagger-ui
+    container_name: swagger-ui
+    environment:
+      SWAGGER_JSON: /api/swagger.json
+    volumes:
+      - ./backend/swagger.json:/api/swagger.json
+    ports:
+      - "8081:8080"
+    networks: [hr-network]
+    restart: unless-stopped
+
+  # ────────────── NGINX (Proxy) ──────────────
+  nginx:
+    image: nginx:latest
+    container_name: hr-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks: [hr-network]
+    restart: unless-stopped
+
+# ────────────── Networks & Volumes ──────────────
 networks:
   hr-network:
     driver: bridge
@@ -148,224 +156,5 @@ volumes:
   pgdata:
   prometheus_data:
   grafana_data:
-
-
-
-# # version: "3.8"
-
-# # # ──────────── VOLUMES ────────────
-# # volumes:
-# #   pgdata:            # Persist Postgres tables & indexes
-# #   jenkins_data:
-
-# # # ──────────── NETWORKS ────────────
-# # networks:
-# #   hr-network:
-# #     driver: bridge
-
-# # # ──────────── SERVICES ────────────
-# # services:
-# #   # ---------- DATABASE (PostgreSQL) ----------
-# #   db:
-# #     image: postgres:16
-# #     # container_name: hr-db
-# #     environment:
-# #       POSTGRES_DB: hrdb
-# #       POSTGRES_USER: postgres
-# #       POSTGRES_PASSWORD: root123
-# #     volumes:
-# #       - pgdata:/var/lib/postgresql/data
-# #       - ./pg_restore:/pg_restore
-# #       - ./init-scripts:/docker-entrypoint-initdb.d
-# #     ports:
-# #       - "5432:5432"                # optional: pgAdmin access
-# #     healthcheck:
-# #       test: ["CMD-SHELL", "pg_isready -U postgres -d hrdb"]
-# #       interval: 10s
-# #       retries: 5
-# #     networks:
-# #       - hr-network
-# #     restart: unless-stopped
-
-# #   # ---------- BACKEND API ----------
-# #   backend:
-# #     build:
-# #       context: ./backend
-# #     # container_name: hr-backend
-# #     env_file:
-# #       - ./backend/.env.development  # keep secrets here
-# #     environment:
-# #       DB_HOST: db
-# #       DB_PORT: 5432
-# #       DB_USER: postgres
-# #       DB_PASS: root123
-# #       DB_NAME: hrdb
-# #       DB_DIALECT: postgres
-# #     depends_on:
-# #       db:
-# #         condition: service_healthy
-# #     ports:
-# #       - "5000:5000"
-# #     networks:
-# #       - hr-network
-# #     restart: unless-stopped
-
-# #   # ---------- FRONTEND ----------
-# #   frontend:
-# #     build:
-# #       context: ./frontend
-# #     # container_name: hr-frontend
-# #     depends_on:
-# #       - backend
-# #     ports:
-# #       - "5173:5173"                 # change to "80:80" if nginx prod build
-# #     networks:
-# #       - hr-network
-# #     restart: unless-stopped
-
- 
-
-
-
-# # services:
-# #   jenkins:
-# #     build:
-# #       context: .
-# #       dockerfile: Dockerfile.jenkins   # 👈 build our custom image
-# #     container_name: jenkins
-# #     user: root                         # needs root to run docker inside
-# #     ports:
-# #       - "8080:8080"
-# #       - "50000:50000"
-# #     volumes:
-# #       - ./jenkins_data:/var/jenkins_home
-# #       - /var/run/docker.sock:/var/run/docker.sock   # keep this
-# #       - .:/app
-# #     restart: unless-stopped
-
-
-# #   backend:
-# #     build: ./backend
-# #     container_name: hr-backend
-# #     ports:
-# #       - "5000:5000"
-# #     restart: unless-stopped
-
-# #   frontend:
-# #     build: ./frontend
-# #     container_name: hr-frontend
-# #     ports:
-# #       - "5173:5173"
-# #     restart: unless-stopped
-# #     depends_on:
-# #       - backend
-
-
-# #     networks:
-# #       - hrnet
-
-# #   backend:
-# #     build: ./backend
-# #     container_name: hr-backend
-# #     ports:
-# #       - "5000:5000"
-# #     restart: "no"
-# #     networks:
-# #       - hrnet
-
-# #   frontend:
-# #     build: ./frontend
-# #     container_name: hr-frontend
-# #     ports:
-# #       - "5173:5173"
-# #     restart: "no"
-# #     depends_on:
-# #       - backend
-# #     networks:
-# #       - hrnet
-
-# # networks:
-# #   hrnet:
-# #     driver: bridge
-
-
-# # services:
-# #   jenkins:
-# #     build:
-# #       context: .
-# #       dockerfile: Dockerfile.jenkins
-# #     container_name: jenkins
-# #     ports:
-# #       - "8080:8080"
-# #       - "50000:50000"
-# #     volumes:
-# #       - ./jenkins_data:/var/jenkins_home
-# #       - /var/run/docker.sock:/var/run/docker.sock
-# #       - .:/app
-# #     user: root
-# #     networks:
-# #       - hrnet
-# #     restart: unless-stopped
-
-# #   backend:
-# #     build: ./backend
-# #     container_name: hr-backend
-# #     ports:
-# #       - "5000:5000"
-# #     networks:
-# #       - hrnet
-# #     depends_on:
-# #       - jenkins
-# #     restart: unless-stopped
-
-# #   frontend:
-# #     build: ./frontend
-# #     container_name: hr-frontend
-# #     ports:
-# #       - "5173:5173"
-# #     networks:
-# #       - hrnet
-# #     depends_on:
-# #       - backend
-# #     restart: unless-stopped
-
-# #   prometheus:
-# #     image: prom/prometheus:latest
-# #     container_name: prometheus
-# #     ports:
-# #       - "9090:9090"
-# #     volumes:
-# #       - prometheus_data:/etc/prometheus
-# #       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-# #     networks:
-# #       - hrnet
-# #     restart: unless-stopped
-
-# #   grafana:
-# #     image: grafana/grafana:latest
-# #     container_name: grafana
-# #     ports:
-# #       - "3000:3000"
-# #     volumes:
-# #       - grafana_data:/var/lib/grafana
-# #     networks:
-# #       - hrnet
-# #     restart: unless-stopped
-
-# #   node-exporter:
-# #     image: prom/node-exporter:latest
-# #     container_name: node-exporter
-# #     ports:
-# #       - "9100:9100"
-# #     networks:
-# #       - hrnet
-# #     restart: unless-stopped
-
-# # volumes:
-# #   jenkins_data:
-# #   prometheus_data:
-# #   grafana_data:
-
-# # networks:
-# #   hrnet:
-# #     driver: bridge
+  loki_data:
+  jenkins_data:
