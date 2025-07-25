@@ -9,6 +9,7 @@ services:
       POSTGRES_DB:       hrdb
       POSTGRES_USER:     postgres
       POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data
     volumes:
       #- pgdata:/var/lib/postgresql/data
       #- ./pg_restore:/pg_backup
