@@ -262,7 +262,9 @@ const saveOnDuty = async () => {
       {!showPreview && (
         <div className="onduty-container">
           <div className="form-header">
-            <Typography variant="h6">On Duty Permission Form::New</Typography>
+
+            <Typography variant="h6">On Duty Permission Form :: NEW DEV BRANCH</Typography>
+
             <button className="close-btn">✖</button>
           </div>
 
