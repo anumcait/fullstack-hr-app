@@ -125,7 +125,7 @@ services:
     container_name: promtail
     volumes:
       - /var/log:/var/log
-      - ./promtail-config.yaml:/etc/promtail/config.yaml
+      - /d/Fullstack-hr-app/promtail-config.yaml:/etc/promtail/config.yaml
     networks: [hr-network]
     restart: unless-stopped
 

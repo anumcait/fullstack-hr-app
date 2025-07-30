@@ -11,7 +11,7 @@ pipeline {
     COMPOSE_PROJECT = 'fullstack-hr-pipeline'
     COMPOSE         = "docker compose -p ${COMPOSE_PROJECT} -f ${COMPOSE_FILE}"
 
-    STACK_SERVICES  = 'db backend frontend prometheus grafana node-exporter loki'
+    STACK_SERVICES  = 'db backend frontend prometheus grafana node-exporter loki promtail'
     BACKUP_DIR      = 'pg_restore'
     BACKUP_FILE     = "${BACKUP_DIR}/hrdb.backup"
     CONTAINER       = 'hr_postgres'
@@ -77,7 +77,7 @@ pipeline {
           userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git']]
         ])
         sh 'ls -l loki-config.yaml || (echo "❌ File missing!" && exit 1)'
-        
+
         sh '''
         
           test -f "${BACKUP_FILE}" || {
