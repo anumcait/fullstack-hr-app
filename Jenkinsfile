@@ -11,7 +11,7 @@ pipeline {
     COMPOSE_PROJECT = 'fullstack-hr-pipeline'
     COMPOSE         = "docker compose -p ${COMPOSE_PROJECT} -f ${COMPOSE_FILE}"
 
-    STACK_SERVICES  = 'db backend frontend prometheus grafana node-exporter loki promtail'
+    STACK_SERVICES  = 'db backend frontend prometheus grafana node-exporter loki promtail swagger nginx'
     BACKUP_DIR      = 'pg_restore'
     BACKUP_FILE     = "${BACKUP_DIR}/hrdb.backup"
     CONTAINER       = 'hr_postgres'
