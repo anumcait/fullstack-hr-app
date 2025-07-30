@@ -74,11 +74,12 @@ pipeline {
        // deleteDir()
         checkout([$class: 'GitSCM',
           branches: [[name: '*/main']],
-          userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git',
-          credentialsId: 'github_pat'
-          ]]
+          userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git']]
         ])
+        sh 'ls -l loki-config.yaml || (echo "❌ File missing!" && exit 1)'
+        
         sh '''
+        
           test -f "${BACKUP_FILE}" || {
             echo "❌ Backup file not found: ${BACKUP_FILE}" ; exit 1 ; }
         '''
