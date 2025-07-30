@@ -1,219 +1,311 @@
+/*  Jenkinsfile – Fullstack‑HR CI/CD  ****************************************
+ *  CI/CD pipeline to bring up stack, restore backups if needed,
+ *  and create a fresh backup at the end.
+ ****************************************************************************/
+
 pipeline {
   agent any
 
   environment {
-    /* Compose project */
-    PROJECT   = 'fullstack-hr-pipeline'
-    COMPOSE   = "docker compose -p ${PROJECT} -f docker-compose.yaml"
-    APP_SVCS  = 'db backend frontend'
+    COMPOSE_FILE    = 'docker-compose.yaml'
+    COMPOSE_PROJECT = 'fullstack-hr-pipeline'
+    COMPOSE         = "docker compose -p ${COMPOSE_PROJECT} -f ${COMPOSE_FILE}"
 
-    /* Restore artefacts */
-    BACKUP    = 'pg_restore/hrdb.backup'
-    RESTORE_SH= 'init-scripts/01-restore-db.sh'
+    STACK_SERVICES  = 'db backend frontend prometheus grafana node-exporter loki'
+    BACKUP_DIR      = 'pg_restore'
+    BACKUP_FILE     = "${BACKUP_DIR}/hrdb.backup"
+    CONTAINER       = 'hr_postgres'
 
-    GIT_LFS_SKIP_SMUDGE = '1'   // clone fast, pull LFS later
+    DB_NAME = 'hrdb'
+    DB_USER = 'postgres'
+    DB_PWD  = 'postgres'
   }
 
-  stages {
-
-    /* ─────────── Clone repo & pull backup ─────────── */
-    stage('Checkout') {
-      steps {
-        deleteDir()
-        git url: 'https://github.com/anumcait/fullstack-hr-app.git', branch: 'main'
-        sh 'git lfs pull --include="${BACKUP}"'
-        sh 'ls -lh ${BACKUP}'
-      }
-    }
-
-    /* ─────────── Quick sanity check ─────────── */
-    stage('Validate assets') {
-      steps {
-        sh '''
-          [ -x ${RESTORE_SH} ] || { echo "❌ restore script not executable"; exit 1; }
-          [ -s ${BACKUP} ]     || { echo "❌ backup file missing/empty"; exit 1; }
-          echo "✅ assets OK"
-        '''
-      }
-    }
-
-    /* ─────────── Reset pgdata volume ─────────── */
-    stage('Reset pgdata') {
-      steps {
-        sh 'docker volume ls -qf name=${PROJECT}_pgdata | xargs -r docker volume rm'
-      }
-    }
-
-    /* ─────────── Build & run stack ─────────── */
-    stage('Up stack') {
-      steps {
-        sh '''
-          ${COMPOSE} down --remove-orphans ${APP_SVCS} || true
-          ${COMPOSE} up -d --build ${APP_SVCS}
-        '''
-      }
-    }
-
-    /* ─────────── Wait for /tmp/RESTORE_OK ─────────── */
-    stage('Wait for restore') {
-      steps {
-        timeout(time: 10, unit: 'MINUTES') {
-          waitUntil {
-            script {
-              sh(script: "${COMPOSE} exec -T db test -f /tmp/RESTORE_OK",
-                 returnStatus: true) == 0
-            }
-          }
-          echo '🚩 Restore flag detected'
-        }
-      }
-    }
-
-    /* ─────────── DB smoke test ─────────── */
-    stage('DB smoke test') {
-      steps {
-        sh '''
-          count=$(${COMPOSE} exec -T db psql -At -U postgres -d hrdb \
-                   -c "SELECT COUNT(*) FROM pg_tables WHERE schemaname='public';")
-          echo "📊 table count: $count"
-          [ "$count" -gt 0 ] || { echo "❌ restore produced zero tables"; exit 1; }
-          echo "✅ DB restore verified"
-        '''
-      }
-    }
+  options {
+    timestamps()
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    retry(conditions: [nonresumable()], count: 2)
   }
 
-  post {
-    success {
-      echo '🎉 Stack is running!'
-      echo '🌐 http://localhost:5173'
-      echo '🔌 http://localhost:5000'
-    }
-    failure {
-      echo '💥 build failed – tearing down stack'
-      sh '${COMPOSE} down -v --remove-orphans ${APP_SVCS} || true'
-    }
-    aborted {
-      sh '${COMPOSE} down -v --remove-orphans ${APP_SVCS} || true'
-    }
-  }
-}
+   stages {
+       
+    //  stage('Run Backup First') {
+    //   steps {
+    //     echo '⏳ Triggering HR Backup Pipeline...'
+    //     build job: 'fullstack_db_backup', wait: true, propagate: true
+    //     echo '✅ Backup pipeline completed.'
+    //   }
+    // }
+// stage('Check DB & Trigger Backup') {
+//   steps {
+//     script {
+//       echo '🔍 Checking if hr_postgres container is running...'
 
+//       def containerExists = sh(
+//         script: "docker ps --format '{{.Names}}' | grep -w hr_postgres || true",
+//         returnStdout: true
+//       ).trim()
 
+//       if (containerExists == 'hr_postgres') {
+//         echo '✅ hr_postgres container is running. Checking DB readiness...'
 
-// pipeline {
-//   agent any
+//         def dbReady = sh(
+//           script: "docker exec hr_postgres pg_isready -U ${DB_USER} -d ${DB_NAME}",
+//           returnStatus: true
+//         )
 
-//   environment {
-//     BACKEND_IMAGE = 'hr-backend'
-//     FRONTEND_IMAGE = 'hr-frontend'
-//   }
-
-//   stages {
-//     stage('Checkout Code') {
-//       steps {
-//         deleteDir()
-//         git url: 'https://github.com/anumcait/fullstack-hr-app.git', branch: 'main'
-//       }
-//     }
-
-//     stage('Build Docker Images') {
-//       steps {
-//         sh 'docker build -t $BACKEND_IMAGE ./backend'
-//         sh 'docker build -t $FRONTEND_IMAGE ./frontend'
-//       }
-//     }
-
-//     stage('Deploy') {
-//       steps {
-//         dir('/app') {
-//           sh 'docker-compose up -d frontend backend'
+//         if (dbReady == 0) {
+//           echo '✅ Database is ready. Triggering backup job...'
+//           build job: 'fullstack_db_backup', wait: true, propagate: true
+//           echo '📦 Backup job completed successfully.'
+//         } else {
+//           echo '⚠️ Database is not accepting connections. Skipping backup.'
 //         }
+
+//       } else {
+//         echo "⚠️ Container 'hr_postgres' not found or not running. Skipping backup."
 //       }
-//     }
-//   post {
-//     success {
-//       echo '✅ App deployed at http://localhost:5173'
-//     }
-//     failure {
-//       echo '❌ Deployment failed'
 //     }
 //   }
 // }
 
+    stage('Checkout Code') {
+      steps {
+        deleteDir()
+        checkout([$class: 'GitSCM',
+          branches: [[name: '*/main']],
+          userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git']]
+        ])
+        sh '''
+          test -f "${BACKUP_FILE}" || {
+            echo "❌ Backup file not found: ${BACKUP_FILE}" ; exit 1 ; }
+        '''
+      }
+    }
+//     stage('Ensure DB Container is Running') {
+//   steps {
+//     script {
+//       def dbRunning = sh(script: "docker ps -q -f name=hr_postgres", returnStdout: true).trim()
+//       if (!dbRunning) {
+//         echo "🧱 DB container not found! Starting stack..."
+//         sh "${COMPOSE} up -d db"
+//         sleep 10 // wait for db to initialize
+//       }
+//     }
+//   }
+// }
+//   stage('Creating Backup'){
+//         steps{
+//             echo '📥 Creating fresh backup'
+//       sh '''
+//         TIMESTAMP=$(date +%Y%m%d%H%M%S)
+//         FRESH_BACKUP="${BACKUP_DIR}/hrdb_${TIMESTAMP}.backup"
 
-// // pipeline {
-// //   agent any 
+//         echo "📊 Rows in onduty_permission table before backup:"
+//         docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \
+//           psql -U postgres -d hrdb -c "SELECT COUNT(*) FROM onduty_permission;" || echo "⚠️ Table may not exist yet"
 
-// //   environment {
-// //     BACKEND_IMAGE = 'hr-backend'
-// //     FRONTEND_IMAGE = 'hr-frontend'
-// //   }
+//         docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \
+//           pg_dump -U ${DB_USER} -F c -b -v -f /tmp/hrdb-latest.backup ${DB_NAME}
 
-// //   stages {
-// //     stage('Checkout Code') {
-// //       steps {
-// //         echo '🔄 Cloning source code...'
-// //         deleteDir() 
-// //         git url: 'https://github.com/anumcait/fullstack-hr-app.git', branch: 'main'
-// //       }
-// //     }
-// //     stage('Install Dependencies') {
-// //       steps {
-// //         echo '📦 Installing backend dependencies...'
-// //         dir('backend') {
-// //           sh 'npm install'
-// //         }
+//         mkdir -p ${BACKUP_DIR}
+//         docker cp ${CONTAINER}:/tmp/hrdb-latest.backup "${FRESH_BACKUP}"
+//         cp "${FRESH_BACKUP}" "${BACKUP_FILE}"   # update default restore file
 
-// //         echo '📦 Installing frontend dependencies...'
-// //         dir('frontend') {
-// //           sh 'npm install'
-// //         }
-// //       }
-// //     }
+//         echo "✅ New backup saved: ${FRESH_BACKUP}"
+//       '''
+//     }
+//         }
+    
+    stage('Down old stack') {
+      steps {
+        sh '''
+          echo "🧹 Stopping & removing stack containers…"
+          ${COMPOSE} stop ${STACK_SERVICES} || true
+          ${COMPOSE} rm -f ${STACK_SERVICES} || true
 
-// //     stage('Build Docker Images') {
-// //       steps {
-// //         echo '🐳 Building Docker images for backend and frontend...'
-// //         sh 'docker build -t $BACKEND_IMAGE ./backend'
-// //         sh 'docker build -t $FRONTEND_IMAGE ./frontend'
-// //       }
-// //     }
+        #  echo "🧼 Removing Postgres volume…"
+        # docker volume rm fullstack-hr-pipeline_pgdata || true
+        '''
+      }
+    }
 
-// //     stage('Scan Backend Image with Trivy') {
-// //       steps {
-// //         echo '🔍 Scanning backend image for vulnerabilities...'
-// //         sh '''
-// //           if ! command -v trivy >/dev/null; then
-// //             echo "⚠️ Trivy is not installed. Please install it on the Jenkins agent."
-// //             exit 1
-// //           fi
-// //           trivy image --exit-code 0 --severity HIGH,CRITICAL $BACKEND_IMAGE
-// //         '''
-// //       }
-// //     }
+    stage('Up stack') {
+      steps {
+        sh '''
+          echo "🚀 Bringing up stack…"
+          ${COMPOSE} up -d --build ${STACK_SERVICES}
+        '''
+      }
+    }
 
-// //     stage('Scan Frontend Image with Trivy') {
-// //       steps {
-// //         echo '🔍 Scanning frontend image for vulnerabilities...'
-// //         sh 'trivy image --exit-code 0 --severity HIGH,CRITICAL $FRONTEND_IMAGE'
-// //       }
-// //     }
+    stage('Wait for DB to be Ready') {
+      steps {
+        script {
+          timeout(time: 90, unit: 'SECONDS') {
+            waitUntil {
+              sh(script: "docker inspect -f '{{.State.Health.Status}}' ${CONTAINER}",
+                 returnStdout: true).trim() == 'healthy'
+            }
+          }
+        }
+      }
+    }
 
-// //     stage('Deploy using Docker Compose') {
-// //       steps {
-// //         echo '🚀 Deploying full stack app with docker-compose...'
-// //         dir("$WORKSPACE") {
-// //           sh 'docker-compose up -d --build --force-recreate --remove-orphans'
-// //         }
-// //       }
-// //     }
-// //   post {
-// //     success {
-// //       echo '✅ Pipeline completed successfully.'
-// //     }
-// //     failure {
-// //       echo '❌ Something went wrong. Check logs for errors.'
-// //     }
-// //   }
-// // }
+  stage('Restore backup (only if needed)') {
+  steps {
+    script {
+      // Check if DB has any tables
+      def tableCount = sh(
+        script: """
+          docker exec ${CONTAINER} psql -U ${DB_USER} -d ${DB_NAME} -tAc \\
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
+        """,
+        returnStdout: true
+      ).trim()
+
+      if (tableCount == '0') {
+        echo "🛠️ No tables found in DB. Proceeding with restore…"
+
+        // Terminate connections and drop/create DB
+        sh """
+          echo "🔒 Terminating active connections to ${DB_NAME}..."
+          docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \\
+            psql -U ${DB_USER} -d postgres -c \\
+              "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='${DB_NAME}' AND pid <> pg_backend_pid();"
+
+          echo "🧨 Dropping database..."
+          docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \\
+            psql -U ${DB_USER} -d postgres -c "DROP DATABASE IF EXISTS ${DB_NAME};"
+
+          echo "🆕 Creating fresh database..."
+          docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \\
+            psql -U ${DB_USER} -d postgres -c "CREATE DATABASE ${DB_NAME};"
+        """
+
+        // Restore from backup
+        sh """
+          echo "📦 Copying backup into container…"
+          docker cp "${BACKUP_FILE}" ${CONTAINER}:/tmp/hrdb.backup
+
+          echo "🔄 Restoring data…"
+          docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \\
+            pg_restore --no-owner --clean --if-exists \\
+                      -U ${DB_USER} -d ${DB_NAME} /tmp/hrdb.backup
+
+          echo "✅ Restore finished"
+        """
+      } else {
+        echo "✅ Database already initialized. Skipping restore."
+      }
+    }
+  }
+}
+
+//     stage('Restore backup (only if needed)') {
+//   steps {
+//     script {
+//       // Step 1: Check if the DB exists and has tables
+//       def tableCount = sh(
+//         script: """
+//           docker exec ${CONTAINER} psql -U ${DB_USER} -d ${DB_NAME} -tAc \
+//             "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
+//         """,
+//         returnStdout: true
+//       ).trim()
+
+//       if (tableCount == '0') {
+//         echo "🛠️ No tables found in DB. Proceeding with restore…"
+
+//         // Step 2: Terminate active connections and drop/recreate database
+//         sh """
+//           echo "🔒 Terminating connections…"
+//           docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \
+//             psql -U ${DB_USER} -d postgres -c \
+//               "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='${DB_NAME}' AND pid <> pg_backend_pid();"
+        
+//           echo "🧨 Dropping database…"
+//           docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \
+//             psql -U ${DB_USER} -d postgres -c "DROP DATABASE IF EXISTS ${DB_NAME};"
+        
+//           echo "🆕 Creating fresh database…"
+//           docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \
+//             psql -U ${DB_USER} -d postgres -c "CREATE DATABASE ${DB_NAME};"
+//         """
+
+//         // Step 3: Restore the backup
+//         sh """
+//           echo "📦 Copying backup into container…"
+//           docker cp "${BACKUP_FILE}" ${CONTAINER}:/tmp/hrdb.backup
+
+//           echo "🔄 Restoring data…"
+//           docker exec -e PGPASSWORD=${DB_PWD} ${CONTAINER} \
+//             pg_restore --no-owner --clean --if-exists \
+//                       -U ${DB_USER} -d ${DB_NAME} /tmp/hrdb.backup
+
+//           echo "✅ Restore finished"
+//         """
+//       } else {
+//         echo "✅ Database already initialized. Skipping restore."
+//       }
+//     }
+//   }
+// }
+
+// stage('PostgreSQL Backup') {
+//   steps {
+//     script {
+//       sh '''
+//         echo "📁 Ensuring local backup directory exists..."
+//         mkdir -p ./pg_restore
+
+//         echo "🔒 Setting permissions inside container..."
+//         docker exec hr_postgres chown -R postgres:postgres pg_backup
+
+//         echo "🧠 Running pg_dump inside container to /pg_backup/hrdb.backup..."
+//         docker exec -u postgres hr_postgres bash -c 'pg_dump -Fc -d hrdb -f /pg_backup/hrdb.backup'
+
+//         echo "✅ Checking if backup file exists on host..."
+//         test -f ./pg_restore/hrdb.backup || { echo "❌ Backup file not found on host" ; exit 1 ; }
+//       '''
+//     }
+//   }
+// }
+
+    stage('Smoke Test') {
+      steps {
+        sh '''
+          echo "🔎 Verifying data in employee_master…"
+          docker exec ${CONTAINER} \
+            psql -U ${DB_USER} -d ${DB_NAME} \
+            -c "SELECT COUNT(*) AS rows_in_employee_master FROM employee_master;"
+        '''
+      }
+    }
+ }
+  
+// stage('Smoke Test') {
+//   steps {
+//     script {
+//       def rowCount = sh(script: "docker exec -e PGPASSWORD=postgres hr_postgres psql -U postgres -d hrdb -t -c \"SELECT COUNT(*) FROM employee_master;\" || echo 0", returnStdout: true).trim()
+//       if (rowCount == "0") {
+//         echo "⚠️ Empty database detected. Consider restoring backup."
+//         // Optional: trigger restore here
+//       } else {
+//         echo "✅ Smoke test passed. Data exists."
+//       }
+//     }
+//   }
+// }
+  post {
+    success {
+      echo '📥 Success'
+      
+    }
+
+    failure {
+      echo '💥 Build failed – dumping last 100 db log lines'
+      sh '${COMPOSE} logs --tail=100 db || true'
+    }
+  }
+}
