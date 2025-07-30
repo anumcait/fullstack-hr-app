@@ -136,7 +136,7 @@ services:
     environment:
       SWAGGER_JSON: /api/swagger.json
     volumes:
-      - ./backend/swagger.json:/api/swagger.json
+      - /d/Fullstack-hr-app/backend/swagger.json:/api/swagger.json
     ports:
       - "8081:8080"
     networks: [hr-network]
