@@ -75,7 +75,7 @@ pipeline {
         checkout([$class: 'GitSCM',
           branches: [[name: '*/main']],
           userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git',
-          credentialsId: 'github-pat'
+          credentialsId: 'github_pat'
           ]]
         ])
         sh '''
