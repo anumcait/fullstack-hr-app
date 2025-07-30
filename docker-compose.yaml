@@ -116,6 +116,7 @@ services:
     volumes:
       - /d/Fullstack-hr-app/loki-config.yaml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
+      - ./loki-wal:/wal
     networks: [hr-network]
     restart: unless-stopped
 
