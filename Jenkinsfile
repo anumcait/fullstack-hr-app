@@ -74,7 +74,9 @@ pipeline {
        // deleteDir()
         checkout([$class: 'GitSCM',
           branches: [[name: '*/main']],
-          userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git']]
+          userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git',
+          credentialsId: 'github-pat'
+          ]]
         ])
         sh '''
           test -f "${BACKUP_FILE}" || {
