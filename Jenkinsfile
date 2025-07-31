@@ -77,6 +77,7 @@ pipeline {
           userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git']]
         ])
         sh 'ls -l loki-config.yaml || (echo "❌ File missing!" && exit 1)'
+        sh 'pwd'
 
         sh '''
         
