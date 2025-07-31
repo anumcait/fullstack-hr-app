@@ -72,7 +72,7 @@ pipeline {
 
     stage('Checkout Code') {
       steps {
-       // deleteDir()
+        deleteDir()
         checkout([$class: 'GitSCM',
           branches: [[name: '*/main']],
           userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git']]
