@@ -78,12 +78,13 @@ pipeline {
           userRemoteConfigs: [[url: 'https://github.com/anumcait/fullstack-hr-app.git']]
         ])
         sh 'ls -l loki-config.yaml || (echo "❌ File missing!" && exit 1)'
-        sh 'pwd'
+
         sh '''
-            echo "--- prometheus.yml ---"
-            ls -lh ./prometheus/prometheus.yml || echo "MISSING prometheus.yml"
-            file ./prometheus/prometheus.yml || echo "FILE ERROR"
-          '''
+          pwd
+          ls ./prometheus
+          ls -lh ./prometheus/prometheus.yml || echo "File missing or inaccessible"
+          stat ./prometheus/prometheus.yml || echo "File stat not available"
+        '''
 
         sh '''
         
