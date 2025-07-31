@@ -82,6 +82,7 @@ pipeline {
         sh '''
           pwd
           ls ./prometheus
+          ls -l /workspace/loki-config.yaml
           ls -lh ./prometheus/prometheus.yml || echo "File missing or inaccessible"
           stat ./prometheus/prometheus.yml || echo "File stat not available"
         '''
