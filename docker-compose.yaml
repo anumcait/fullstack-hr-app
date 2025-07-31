@@ -13,10 +13,10 @@ services:
     volumes:
       #- pgdata:/var/lib/postgresql/data
       #- ./pg_restore:/pg_backup
-      - ${PWD}/pg_restore:/pg_backup
+      - ${WORKSPACE}/pg_restore:/pg_backup
       - ./pgdata-new:/var/lib/postgresql/data
     #  - /mnt/jenkins-data/postgres:/var/lib/postgresql/data
-      #- ${PWD}/pgdata:/var/lib/postgresql/data
+      #- ${WORKSPACE}/pgdata:/var/lib/postgresql/data
      # - pgdata:/var/lib/postgresql/data
       # optional: mount backup + init script
       # - ./init-scripts/01-restore-db.sh:/docker-entrypoint-initdb.d/01-restore-db.sh:ro
@@ -82,7 +82,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ${PWD}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${WORKSPACE}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks: [hr-network]
     restart: unless-stopped
 
@@ -114,7 +114,7 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
-      - ${PWD}/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - ${WORKSPACE}/loki-config.yaml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
     networks: [hr-network]
     restart: unless-stopped
@@ -125,7 +125,7 @@ services:
     container_name: promtail
     volumes:
       - /var/log:/var/log
-      - ${PWD}/promtail-config.yaml:/etc/promtail/config.yaml
+      - ${WORKSPACE}/promtail-config.yaml:/etc/promtail/config.yaml
     networks: [hr-network]
     restart: unless-stopped
 
@@ -136,7 +136,7 @@ services:
     environment:
       SWAGGER_JSON: /api/swagger.json
     volumes:
-      - ${PWD}/backend/swagger.json:/api/swagger.json
+      - ${WORKSPACE}/backend/swagger.json:/api/swagger.json
     ports:
       - "8081:8080"
     networks: [hr-network]
@@ -149,7 +149,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ${PWD}/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${WORKSPACE}/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - frontend
       - backend

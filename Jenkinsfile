@@ -15,6 +15,7 @@ pipeline {
     BACKUP_DIR      = 'pg_restore'
     BACKUP_FILE     = "${BACKUP_DIR}/hrdb.backup"
     CONTAINER       = 'hr_postgres'
+    WORKSPACE       = "${env.WORKSPACE}"
 
     DB_NAME = 'hrdb'
     DB_USER = 'postgres'
