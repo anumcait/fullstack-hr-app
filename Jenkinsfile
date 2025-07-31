@@ -144,10 +144,13 @@ pipeline {
 
     stage('Up stack') {
       steps {
+       dir('/var/jenkins_home/workspace/fullstack-hr-pipeline')
+       {
         sh '''
           echo "🚀 Bringing up stack…"
           ${COMPOSE} up -d --build ${STACK_SERVICES}
         '''
+       }
       }
     }
 
