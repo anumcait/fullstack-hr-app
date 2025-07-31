@@ -79,6 +79,11 @@ pipeline {
         ])
         sh 'ls -l loki-config.yaml || (echo "❌ File missing!" && exit 1)'
         sh 'pwd'
+        sh '''
+            echo "--- prometheus.yml ---"
+            ls -lh ./prometheus/prometheus.yml || echo "MISSING prometheus.yml"
+            file ./prometheus/prometheus.yml || echo "FILE ERROR"
+          '''
 
         sh '''
         
