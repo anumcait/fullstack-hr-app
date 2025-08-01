@@ -35,7 +35,7 @@ jobs:
 
     - name: 🚀 Start full stack
       run: |
-        docker-compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE up -d --build \
+        docker compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE up -d --build \
           db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
         sleep 15
 
