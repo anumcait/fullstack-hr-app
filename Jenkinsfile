@@ -144,12 +144,12 @@ pipeline {
 
   stage('Up stack') {
     steps {
-      dir('fullstack-hr-app') {
+      // dir('fullstack-hr-app') {
         sh '''
           echo "🚀 Bringing up stack…"
           ${COMPOSE} up -d --build ${STACK_SERVICES}
         '''
-      }
+      // }
     }
   }
     stage('Wait for DB to be Ready') {
