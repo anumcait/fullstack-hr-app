@@ -80,7 +80,6 @@ pipeline {
         sh 'ls -l loki-config.yaml || (echo "❌ File missing!" && exit 1)'
 
         sh '''
-          ls ${env.WORKSPACE}
           pwd
           ls ./prometheus
           ls -l loki-config.yaml
@@ -145,9 +144,9 @@ pipeline {
 
   stage('Up stack') {
     steps {
-       dir("${env.WORKSPACE}"){
+       dir("${env.WORKSPACE}") {
         sh '''
-          echo "🚀 Bringing up stack…"
+          echo "🚀 Bringing up stack…  `${env.WORKSPACE}`"
           ${COMPOSE} up -d --build ${STACK_SERVICES}
         '''
        }
