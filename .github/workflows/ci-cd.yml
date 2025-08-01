@@ -33,13 +33,14 @@ jobs:
         }
 
     - name: 🚀 Start full stack
-      shell: bash
+      shell: powershell
       run: |
         docker compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE up -d --build \
           db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
         sleep 15
 
     - name: ⏱ Wait for DB to be healthy
+      
       run: |
         for i in {1..10}; do
           STATUS=$(docker inspect -f '{{.State.Health.Status}}' $CONTAINER)
