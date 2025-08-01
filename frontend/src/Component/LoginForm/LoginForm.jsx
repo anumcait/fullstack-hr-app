@@ -62,13 +62,15 @@ const LoginForm = () => {
 {/* <h3 className="text-2xl font-bold mb-4">Sign In</h3>
           <h3 className="text-2xl font-bold mb-4">Sign In</h3> */}
 
-          <form className="login-form" onSubmit={handleLogin}>
+          <form onSubmit={handleLogin}>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               User Name:
             </label>
             <input
               type="text"
               placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
 
@@ -77,6 +79,8 @@ const LoginForm = () => {
             </label>
             <input
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
               className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
