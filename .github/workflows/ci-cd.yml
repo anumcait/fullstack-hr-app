@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: ⚙️ Set up Docker Compose
-      run: docker-compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE down || true
+      run: docker compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE down || true
 
     - name: 🔍 Check for backup file
       run: |
