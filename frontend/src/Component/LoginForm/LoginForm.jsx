@@ -5,6 +5,38 @@ import axios from 'axios';
 import './LoginForm.css'; // ✅ Import your custom CSS
 
 const LoginForm = () => {
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await axios.post(
+      'http://localhost:5000/api/auth/login',
+      {
+        username,
+        password
+      },
+      {
+        withCredentials: true // ⬅️ VERY IMPORTANT for session to work
+      }
+    );
+
+    // Save session info to localStorage or state
+    const { user } = response.data;
+    localStorage.setItem('userName', user.username);
+    localStorage.setItem('userRole', user.role); // optional
+    localStorage.setItem('empName', user.ename);
+    window.location.href = '/dashboard';
+  } catch (err) {
+    console.error('Login error:', err.response?.data || err.message);
+    setError('Invalid username or password');
+  }
+};
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#eaf2ff] px-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 overflow-hidden">
@@ -76,3 +108,4 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
+
