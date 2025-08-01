@@ -16,8 +16,8 @@ env:
   CONTAINER: hr_postgres
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  deploy:
+    runs-on: self-hosted
 
     steps:
     - name: 📥 Checkout code
