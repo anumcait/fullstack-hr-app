@@ -35,9 +35,10 @@ jobs:
     - name: 🚀 Start full stack
       shell: powershell
       run: |
-        docker compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE up -d --build \
+        docker compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE up -d --build `
           db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
-        sleep 15
+
+        Start-Sleep -Seconds 15
 
     - name: ⏱ Wait for DB to be healthy
       
