@@ -80,6 +80,7 @@ pipeline {
         sh 'ls -l loki-config.yaml || (echo "❌ File missing!" && exit 1)'
 
         sh '''
+          ls ${env.WORKSPACE}
           pwd
           ls ./prometheus
           ls -l loki-config.yaml
