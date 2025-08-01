@@ -23,23 +23,20 @@ jobs:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
 
-    - name: ⚙️ Set up Docker Compose
-      shell: pwsh
+    - name: ⚙️ Set up Docker Compose (Git Bash)
+      shell: bash
       run: |
-        try {
-          docker compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE down
-        } catch {
-          Write-Host "docker compose down failed (ignored)"
-        }
+        docker compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE down || true
 
-    - name: 🔍 Check for backup file
-      run: |
-        if [ ! -f "$BACKUP_FILE" ]; then
-          echo "❌ Backup file not found: $BACKUP_FILE"
-          exit 1
-        fi
+        - name: 🔍 Check for backup file
+          run: |
+            if [ ! -f "$BACKUP_FILE" ]; then
+              echo "❌ Backup file not found: $BACKUP_FILE"
+              exit 1
+            fi
 
     - name: 🚀 Start full stack
+      shell: bash
       run: |
         docker compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE up -d --build \
           db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
