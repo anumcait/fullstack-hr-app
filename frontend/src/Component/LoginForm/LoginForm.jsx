@@ -2,7 +2,7 @@ import React from 'react';
 import { FaFacebookF, FaGoogle, FaLinkedinIn } from 'react-icons/fa';
 import logo from "../../assets/images/EQIC_Image.jpg";
 import axios from 'axios';
-import './loginForm.css'; // ✅ Import your custom CSS
+import './LoginForm.css'; // ✅ Import your custom CSS
 
 const LoginForm = () => {
   return (
