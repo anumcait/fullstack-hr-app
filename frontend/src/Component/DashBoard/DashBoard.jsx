@@ -1,6 +1,5 @@
 import "./DashBoard.css";
 import ChatBotIcon from "../ChatBot/ChatBotIcon";
-import Header from "../Partials/Header";
 import Footer from "../Partials/Footer";
 
 function DashBoard() {
@@ -13,7 +12,7 @@ function DashBoard() {
 
   return (
     <div className="dashboard">
-      <Header />
+
 
       <main className="dashboard-main">
         <h2 className="dashboard-title">HRMS Dashboard Overview</h2>
