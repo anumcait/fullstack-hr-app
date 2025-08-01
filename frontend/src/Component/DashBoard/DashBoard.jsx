@@ -1,39 +1,31 @@
-import { useState } from "react";
 import "./DashBoard.css";
 import ChatBotIcon from "../ChatBot/ChatBotIcon";
 import Header from "../Partials/Header";
 import Footer from "../Partials/Footer";
 
-
 function DashBoard() {
+  const dashboardData = [
+    { module: "Leave Applications", count: 4, status: "Pending", color: "#f59e0b" },
+    { module: "Employee Onboarding", count: 2, status: "In Progress", color: "#3b82f6" },
+    { module: "Payroll Processing", count: 1, status: "Completed", color: "#10b981" },
+    { module: "Training Requests", count: 5, status: "New", color: "#8b5cf6" },
+  ];
+
   return (
     <div className="dashboard">
-      
-      <main>
-        <table className="purchase-table">
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Project</th>
-              <th>Status</th>
-              <th>Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Indent</td>
-              <td>The Drizzle</td>
-              <td>Re-check</td>
-              <td>3</td>
-            </tr>
-            <tr>
-              <td>Marge Indent</td>
-              <td>The Drizzle (Other)</td>
-              <td>New</td>
-              <td>2</td>
-            </tr>
-          </tbody>
-        </table>
+      <Header />
+
+      <main className="dashboard-main">
+        <h2 className="dashboard-title">HRMS Dashboard Overview</h2>
+        <div className="dashboard-cards">
+          {dashboardData.map((item, index) => (
+            <div className="dashboard-card" key={index} style={{ borderLeft: `6px solid ${item.color}` }}>
+              <h3>{item.module}</h3>
+              <p>Status: <strong>{item.status}</strong></p>
+              <p className="card-count">{item.count}</p>
+            </div>
+          ))}
+        </div>
       </main>
 
       <Footer />

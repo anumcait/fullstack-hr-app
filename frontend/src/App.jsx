@@ -57,12 +57,13 @@ function App() {
       <Routes >
         
         <Route path="/" element={<LoginForm />} />
+              <Route path="/dashboard" element={<DashBoard/>} />
         <Route element={
           <ProtectedRoute>
             <MainLayout />
           </ProtectedRoute>
         }>
-        <Route path="/dashboard" element={<DashBoard/>} />
+  
 
         
         <Route path="/leave-form" element={<LeaveForm />} />
