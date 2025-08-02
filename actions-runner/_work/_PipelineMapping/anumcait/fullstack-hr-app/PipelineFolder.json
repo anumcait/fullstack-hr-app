@@ -1,0 +1,12 @@
+﻿{
+  "repositoryName": "anumcait/fullstack-hr-app",
+  "pipelineDirectory": "fullstack-hr-app",
+  "workspaceDirectory": "fullstack-hr-app\\fullstack-hr-app",
+  "repositories": {
+    "anumcait/fullstack-hr-app": {
+      "repositoryPath": "fullstack-hr-app\\fullstack-hr-app",
+      "lastRunOn": "08/02/2025 10:24:12 +05:30"
+    }
+  },
+  "lastRunOn": "08/02/2025 10:24:12 +05:30"
+}
