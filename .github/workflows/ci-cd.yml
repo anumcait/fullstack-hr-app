@@ -1,4 +1,4 @@
-name: Fullstack HR CI/CD (Bash Compatible)
+name: Fullstack HR CI/CD (Windows Friendly)
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 env:
   COMPOSE_FILE: docker-compose.yaml
-  COMPOSE_PROJECT: fullstack_hr_pipeline  # Valid project name
+  COMPOSE_PROJECT: fullstack_hr_pipeline
   DB_NAME: hrdb
   DB_USER: postgres
   DB_PWD: postgres
@@ -18,68 +18,64 @@ env:
 jobs:
   deploy:
     runs-on: self-hosted
-
     defaults:
       run:
-        shell: bash
+        shell: bash  # Will fallback to Git Bash or WSL bash if installed
 
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
 
-    - name: 🧹 Stop existing containers (if any)
+    - name: 🧹 Shut down containers
       run: |
-        echo "Stopping existing containers..."
-        docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down || echo "Teardown ignored"
+        echo "Stopping containers..."
+        docker-compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE down || echo "Teardown ignored"
 
     - name: 🚀 Start full stack
       run: |
-        docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" up -d --build \
+        echo "Starting services..."
+        docker-compose -p $COMPOSE_PROJECT -f $COMPOSE_FILE up -d --build \
           db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
-        echo "Waiting for containers to initialize..."
         sleep 15
 
     - name: ⏱ Wait for DB to be healthy
       run: |
+        echo "Checking DB health..."
         for i in {1..10}; do
-          status=$(docker inspect -f '{{.State.Health.Status}}' "$CONTAINER")
-          echo "DB Health: $status"
-          [ "$status" == "healthy" ] && break
+          STATUS=$(docker inspect -f "{{.State.Health.Status}}" $CONTAINER)
+          echo "DB Health: $STATUS"
+          if [ "$STATUS" = "healthy" ]; then break; fi
           sleep 5
         done
 
     - name: 🧪 Check if DB needs restore
       id: db-check
       run: |
-        count=$(docker exec "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -tAc \
+        COUNT=$(docker exec $CONTAINER psql -U $DB_USER -d $DB_NAME -tAc \
           "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';")
-        echo "tables=$count" >> "$GITHUB_OUTPUT"
+        echo "tables=$COUNT" >> $GITHUB_OUTPUT
 
     - name: 📦 Restore backup (if needed)
       if: steps.db-check.outputs.tables == '0'
       run: |
-        echo "🔄 Restoring DB..."
-        docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
-          psql -U "$DB_USER" -d postgres -c \
+        echo "Restoring DB..."
+        docker exec -e PGPASSWORD=$DB_PWD $CONTAINER \
+          psql -U $DB_USER -d postgres -c \
           "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$DB_NAME' AND pid <> pg_backend_pid();"
-
-        docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
-          psql -U "$DB_USER" -d postgres -c "DROP DATABASE IF EXISTS $DB_NAME;"
-
-        docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
-          psql -U "$DB_USER" -d postgres -c "CREATE DATABASE $DB_NAME;"
-
-        docker cp "$BACKUP_FILE" "$CONTAINER:/tmp/hrdb.backup"
-
-        docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
+        docker exec -e PGPASSWORD=$DB_PWD $CONTAINER \
+          psql -U $DB_USER -d postgres -c "DROP DATABASE IF EXISTS $DB_NAME;"
+        docker exec -e PGPASSWORD=$DB_PWD $CONTAINER \
+          psql -U $DB_USER -d postgres -c "CREATE DATABASE $DB_NAME;"
+        docker cp "$BACKUP_FILE" "$CONTAINER":/tmp/hrdb.backup
+        docker exec -e PGPASSWORD=$DB_PWD $CONTAINER \
           pg_restore --no-owner --clean --if-exists \
-          -U "$DB_USER" -d "$DB_NAME" /tmp/hrdb.backup
+            -U $DB_USER -d $DB_NAME /tmp/hrdb.backup
 
     - name: 🔍 Smoke test employee_master
       run: |
-        docker exec "$CONTAINER" \
-          psql -U "$DB_USER" -d "$DB_NAME" -c \
+        docker exec $CONTAINER \
+          psql -U $DB_USER -d $DB_NAME -c \
           "SELECT COUNT(*) AS rows_in_employee_master FROM employee_master;"
 
     - name: ✅ Done
-      run: echo "📥 CI/CD pipeline completed."
+      run: echo "CI/CD pipeline completed."
