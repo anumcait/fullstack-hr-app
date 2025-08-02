@@ -63,11 +63,11 @@ Copy and edit environment variables:
 cp .env.example .env
 Start containers (frontend + backend + db):
 
+```bash
 docker-compose up --build
-Access the app:
 
+### Access the app:
 Frontend: http://localhost:5173
-
 Backend API: http://localhost:5000/api
 
 🧑‍💻 Contributing
@@ -77,11 +77,11 @@ We welcome new contributors!
 Fork the repo
 
 Create a new branch:
-
+```bash
 git checkout -b feature/your-feature-name
 Make your changes and commit:
 
-
+```bash
 git commit -m "Add: new feature XYZ"
 Push and open a Pull Request
 
@@ -95,6 +95,7 @@ npm run dev       # Start dev server
 npm run build     # Production build
 Backend (in /backend)
 
+```bash
 npm install
 npm run dev       # Start dev server with nodemon
 npm run migrate   # Sequelize DB migrations
@@ -107,13 +108,5 @@ This project is licensed under the MIT License.
 🙋 Need Help?
 Join the team, raise an Issue, or connect via LinkedIn!
 
-Made with 💙 by Aliveni and open-source collaborators.
-
-
-✅ **Next Suggestions**:
-- Add `CONTRIBUTING.md`  
-- Create `/docs/architecture.md`  
-- GitHub project board for issue/task tracking
-
-Let me know which one you want next!
+### Made with 💙 by Aliveni and open-source collaborators.
 
