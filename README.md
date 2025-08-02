@@ -73,7 +73,7 @@ Backend API: http://localhost:5000/api
 ```
 ---
 
-🧑‍💻 Contributing
+### 🧑‍💻 Contributing
 We welcome new contributors!
 
 👣 Steps to Contribute
