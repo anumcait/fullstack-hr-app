@@ -45,11 +45,12 @@ import OnDutyPreview from "./Component/onduty/OnDutyPreview";
 import OnDutyDashboard from "./Component/onduty/OnDutyDashboard";
 import EditItem from "./Component/ItemMaster/EditItem";
 import { ThemeProvider } from '@mui/material/styles';
-import theme from './theme';
+ import theme from './theme.js';
+import LeaveDashboard from "./Component/LeaveApplication/LeaveDashboard.jsx";
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
+     <ThemeProvider theme={theme}>
      <ToastProvider>
     <div className="App">
      
@@ -64,9 +65,9 @@ function App() {
         }>
         <Route path="/dashboard" element={<DashBoard/>} />
 
-        
-        <Route path="/leave-form" element={<LeaveForm />} />
-        <Route path="/leave-report" element={<LeaveReport />} />
+        <Route path="/leave" element={<LeaveDashboard />} />
+        {/* <Route path="/leave-form" element={<LeaveDashboard />} /> */}
+        {/* <Route path="/leave-report" element={<LeaveReport />} /> */}
         <Route path="/employees" element={<EmployeeReportForm />} />
         <Route path="/add-employee" element={<AddEmployeeForm />} />
 

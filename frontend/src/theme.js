@@ -3,13 +3,29 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#0000'//'#0b3c91',
+      main: '#1976d2', // blue
     },
     secondary: {
-      main: '#1565c0',
+      main: '#dc004e', // pink
+    },
+    background: {
+      default: '#f4f6f8',
     },
     text: {
-      primary: '#ffffff',
+      primary: '#000000',
+    },
+  },
+  typography: {
+    fontFamily: 'Roboto, Arial',
+    fontSize: 14,
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none', // prevent uppercase
+        },
+      },
     },
   },
 });
