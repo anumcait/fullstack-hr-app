@@ -1,3 +1,20 @@
+name: Fullstack HR CI/CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  COMPOSE_FILE: docker-compose.yaml
+  COMPOSE_PROJECT: fullstack-hr-pipeline
+  DB_NAME: hrdb
+  DB_USER: postgres
+  DB_PWD: postgres
+  BACKUP_DIR: pg_restore
+  BACKUP_FILE: pg_restore/hrdb.backup
+  CONTAINER: hr_postgres
+
 jobs:
   deploy:
     runs-on: self-hosted
@@ -9,15 +26,13 @@ jobs:
     - name: 🧹 Shut down containers
       shell: bash
       run: |
-        docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down || echo "compose down failed (ignored)"
+        docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down || true
 
     - name: 🚀 Start full stack
       shell: bash
       run: |
         docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" up -d --build \
           db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
-
-        echo "⏳ Waiting for containers to warm up..."
         sleep 15
 
     - name: ⏱ Wait for DB to be healthy
