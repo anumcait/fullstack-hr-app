@@ -80,17 +80,17 @@ We welcome new contributors!
 Fork the repo
 
 Create a new branch:
-```bash
+```
 git checkout -b feature/your-feature-name
 Make your changes and commit:
 
-```bash
+```
 git commit -m "Add: new feature XYZ"
 Push and open a Pull Request
 
-See CONTRIBUTING.md for full guidelines.
+---
 
-📋 Common Scripts
+### 📋 Common Scripts
 Frontend (in /frontend)
 
 npm install
@@ -98,11 +98,14 @@ npm run dev       # Start dev server
 npm run build     # Production build
 Backend (in /backend)
 
-```bash
+```
 npm install
 npm run dev       # Start dev server with nodemon
 npm run migrate   # Sequelize DB migrations
-🗂️ Documentation
+
+```
+
+### 🗂️ Documentation
 Full app architecture, API specs, and flow diagrams are in the /docs folder.
 
 📜 License
