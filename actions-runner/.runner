@@ -5,7 +5,7 @@
   "poolName": "Default",
   "serverUrl": "https://pipelinesghubeus11.actions.githubusercontent.com/2RSdgxZs9DHXPPwGoUdgTbOqpL7nGEiQU575YF77neNGO4J6co/",
   "gitHubUrl": "https://github.com/anumcait/fullstack-hr-app",
-  "workFolder": "hrapp",
+  "workFolder": "_work",
   "useV2Flow": true,
   "serverUrlV2": "https://broker.actions.githubusercontent.com/"
 }
