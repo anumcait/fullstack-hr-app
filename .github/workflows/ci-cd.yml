@@ -1,4 +1,4 @@
-name: Fullstack HR CI/CD (PowerShell)
+name: Fullstack HR CI/CD (Git Bash)
 
 on:
   push:
@@ -24,64 +24,60 @@ jobs:
         shell: bash
 
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🧹 Shut down containers
-      run: |
-        try {
-          docker compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE down
-        } catch {
-          Write-Host "Ignoring errors on shutdown"
-        }
+      - name: 🧹 Shut down containers
+        run: |
+          echo "Stopping existing containers (if any)..."
+          docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down || echo "Teardown ignored"
 
-    - name: 🚀 Start full stack
-      run: |
-        docker compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE up -d --build `
-          db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
-        Start-Sleep -Seconds 15
+      - name: 🚀 Start full stack
+        run: |
+          echo "Starting the full stack..."
+          docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" up -d --build \
+            db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
+          echo "Sleeping 15 seconds for services to stabilize..."
+          sleep 15
 
-    - name: ⏱ Wait for DB to be healthy
-      run: |
-        for ($i = 0; $i -lt 10; $i++) {
-          $status = docker inspect -f '{{.State.Health.Status}}' $env:CONTAINER
-          Write-Host "DB Health: $status"
-          if ($status -eq "healthy") { break }
-          Start-Sleep -Seconds 5
-        }
+      - name: ⏱ Wait for DB to be healthy
+        run: |
+          echo "Checking database health..."
+          for i in {1..10}; do
+            STATUS=$(docker inspect -f '{{.State.Health.Status}}' "$CONTAINER")
+            echo "Attempt $i: DB Health: $STATUS"
+            if [ "$STATUS" = "healthy" ]; then
+              echo "Database is healthy."
+              break
+            fi
+            sleep 5
+          done
 
-    - name: 🧪 Check if DB needs restore
-      id: db-check
-      run: |
-        $count = docker exec $env:CONTAINER psql -U $env:DB_USER -d $env:DB_NAME -tAc `
-          "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
-        "tables=$count" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+      - name: 🧪 Check if DB needs restore
+        id: db-check
+        run: |
+          COUNT=$(docker exec "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';")
+          echo "tables=$COUNT" >> "$GITHUB_OUTPUT"
 
-    - name: 📦 Restore backup (if needed)
-      if: steps.db-check.outputs.tables == '0'
-      run: |
-        Write-Host "🔄 Restoring DB..."
-        docker exec -e PGPASSWORD=$env:DB_PWD $env:CONTAINER `
-          psql -U $env:DB_USER -d postgres -c `
-          "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$env:DB_NAME' AND pid <> pg_backend_pid();"
+      - name: 📦 Restore backup (if needed)
+        if: steps.db-check.outputs.tables == '0'
+        run: |
+          echo "Restoring DB from backup..."
+          docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
+            psql -U "$DB_USER" -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$DB_NAME' AND pid <> pg_backend_pid();"
+          docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
+            psql -U "$DB_USER" -d postgres -c "DROP DATABASE IF EXISTS $DB_NAME;"
+          docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
+            psql -U "$DB_USER" -d postgres -c "CREATE DATABASE $DB_NAME;"
+          docker cp "$BACKUP_FILE" "$CONTAINER":/tmp/hrdb.backup
+          docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
+            pg_restore --no-owner --clean --if-exists -U "$DB_USER" -d "$DB_NAME" /tmp/hrdb.backup
 
-        docker exec -e PGPASSWORD=$env:DB_PWD $env:CONTAINER `
-          psql -U $env:DB_USER -d postgres -c "DROP DATABASE IF EXISTS $env:DB_NAME;"
+      - name: 🔍 Smoke test employee_master
+        run: |
+          echo "Running smoke test query on employee_master..."
+          docker exec "$CONTAINER" \
+            psql -U "$DB_USER" -d "$DB_NAME" -c "SELECT COUNT(*) AS rows_in_employee_master FROM employee_master;"
 
-        docker exec -e PGPASSWORD=$env:DB_PWD $env:CONTAINER `
-          psql -U $env:DB_USER -d postgres -c "CREATE DATABASE $env:DB_NAME;"
-
-        docker cp "$env:BACKUP_FILE" "$env:CONTAINER:/tmp/hrdb.backup"
-
-        docker exec -e PGPASSWORD=$env:DB_PWD $env:CONTAINER `
-          pg_restore --no-owner --clean --if-exists `
-            -U $env:DB_USER -d $env:DB_NAME /tmp/hrdb.backup
-
-    - name: 🔍 Smoke test employee_master
-      run: |
-        docker exec $env:CONTAINER `
-          psql -U $env:DB_USER -d $env:DB_NAME -c `
-          "SELECT COUNT(*) AS rows_in_employee_master FROM employee_master;"
-
-    - name: ✅ Done
-      run: echo "📥 CI/CD pipeline completed."
+      - name: ✅ Done
+        run: echo "CI/CD pipeline completed successfully."
