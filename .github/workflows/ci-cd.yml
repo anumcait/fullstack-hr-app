@@ -19,37 +19,34 @@ jobs:
   deploy:
     runs-on: self-hosted
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
 
     - name: 🧹 Shut down containers
-      shell: bash
       run: |
-        docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down || true
+        docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down || echo "Ignore errors"
 
     - name: 🚀 Start full stack
-      shell: bash
       run: |
         docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" up -d --build \
           db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
         sleep 15
 
     - name: ⏱ Wait for DB to be healthy
-      shell: bash
       run: |
         for i in {1..10}; do
           STATUS=$(docker inspect -f '{{.State.Health.Status}}' "$CONTAINER")
           echo "DB Health: $STATUS"
-          if [ "$STATUS" = "healthy" ]; then
-            break
-          fi
-          sleep 5
+          [ "$STATUS" = "healthy" ] && break || sleep 5
         done
 
     - name: 🧪 Check if DB needs restore
       id: db-check
-      shell: bash
       run: |
         COUNT=$(docker exec "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -tAc \
           "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';")
@@ -57,7 +54,6 @@ jobs:
 
     - name: 📦 Restore backup (if needed)
       if: steps.db-check.outputs.tables == '0'
-      shell: bash
       run: |
         echo "🔄 Restoring DB..."
         docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
@@ -73,12 +69,10 @@ jobs:
             -U "$DB_USER" -d "$DB_NAME" /tmp/hrdb.backup
 
     - name: 🔍 Smoke test employee_master
-      shell: bash
       run: |
         docker exec "$CONTAINER" \
           psql -U "$DB_USER" -d "$DB_NAME" -c \
           "SELECT COUNT(*) AS rows_in_employee_master FROM employee_master;"
 
     - name: ✅ Done
-      shell: bash
       run: echo "📥 CI/CD pipeline completed."
