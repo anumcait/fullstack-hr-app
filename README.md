@@ -39,6 +39,7 @@ fullstack-hr-app/
 └── docs/ # Technical docs & flow diagrams
 
 ---
+
 ```
 ## ⚙️ Getting Started
 
@@ -69,6 +70,8 @@ docker-compose up --build
 ### Access the app:
 Frontend: http://localhost:5173
 Backend API: http://localhost:5000/api
+```
+---
 
 🧑‍💻 Contributing
 We welcome new contributors!
