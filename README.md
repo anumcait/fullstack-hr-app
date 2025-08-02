@@ -39,7 +39,7 @@ fullstack-hr-app/
 └── docs/ # Technical docs & flow diagrams
 
 ---
-
+```
 ## ⚙️ Getting Started
 
 ### 🔧 Prerequisites
