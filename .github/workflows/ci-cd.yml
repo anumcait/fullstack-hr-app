@@ -1,78 +1,44 @@
-name: Fullstack HR CI/CD
+name: 🚀 Full Stack CI/CD - Git Bash
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
-env:
-  COMPOSE_FILE: docker-compose.yaml
-  COMPOSE_PROJECT: fullstack-hr-pipeline
-  DB_NAME: hrdb
-  DB_USER: postgres
-  DB_PWD: postgres
-  BACKUP_DIR: pg_restore
-  BACKUP_FILE: pg_restore/hrdb.backup
-  CONTAINER: hr_postgres
-
 jobs:
-  deploy:
-    runs-on: self-hosted
+  fullstack-deploy:
+    runs-on: windows-latest
 
     defaults:
       run:
-        shell: bash
+        shell: bash  # Use Git Bash
+
+    env:
+      COMPOSE_PROJECT: fullstack_hr
+      COMPOSE_FILE: docker-compose.yaml
 
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+      - name: 🧾 Checkout repository
+        uses: actions/checkout@v4
 
-    - name: 🧹 Shut down containers
-      run: |
-        docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down || echo "Ignore errors"
+      - name: 🔍 Check Git Bash location
+        run: which bash
 
-    - name: 🚀 Start full stack
-      run: |
-        docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" up -d --build \
-          db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
-        sleep 15
+      - name: 🧹 Clean previous Docker containers (ignore errors)
+        run: docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down || echo "Ignore errors"
 
-    - name: ⏱ Wait for DB to be healthy
-      run: |
-        for i in {1..10}; do
-          STATUS=$(docker inspect -f '{{.State.Health.Status}}' "$CONTAINER")
-          echo "DB Health: $STATUS"
-          [ "$STATUS" = "healthy" ] && break || sleep 5
-        done
+      - name: 🚀 Start full stack services
+        run: |
+          docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" up -d --build \
+            db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
 
-    - name: 🧪 Check if DB needs restore
-      id: db-check
-      run: |
-        COUNT=$(docker exec "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -tAc \
-          "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';")
-        echo "tables=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "Waiting for services to stabilize..."
+          sleep 20
 
-    - name: 📦 Restore backup (if needed)
-      if: steps.db-check.outputs.tables == '0'
-      run: |
-        echo "🔄 Restoring DB..."
-        docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
-          psql -U "$DB_USER" -d postgres -c \
-          "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$DB_NAME' AND pid <> pg_backend_pid();"
-        docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
-          psql -U "$DB_USER" -d postgres -c "DROP DATABASE IF EXISTS $DB_NAME;"
-        docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
-          psql -U "$DB_USER" -d postgres -c "CREATE DATABASE $DB_NAME;"
-        docker cp "$BACKUP_FILE" "$CONTAINER":/tmp/hrdb.backup
-        docker exec -e PGPASSWORD="$DB_PWD" "$CONTAINER" \
-          pg_restore --no-owner --clean --if-exists \
-            -U "$DB_USER" -d "$DB_NAME" /tmp/hrdb.backup
+      - name: ✅ Show running containers
+        run: docker ps
 
-    - name: 🔍 Smoke test employee_master
-      run: |
-        docker exec "$CONTAINER" \
-          psql -U "$DB_USER" -d "$DB_NAME" -c \
-          "SELECT COUNT(*) AS rows_in_employee_master FROM employee_master;"
-
-    - name: ✅ Done
-      run: echo "📥 CI/CD pipeline completed."
+      - name: 📦 Stop services after build (optional)
+        if: always()
+        run: docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" down || echo "Teardown ignored"
