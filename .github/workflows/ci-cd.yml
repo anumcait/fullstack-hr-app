@@ -1,4 +1,4 @@
-name: 🚀 Fullstack HR App CI/CD (Windows Self-Hosted)
+name: 🚀 Fullstack HR App CI/CD
 
 on:
   push:
@@ -8,72 +8,39 @@ on:
 env:
   COMPOSE_PROJECT: hrapp
   COMPOSE_FILE: docker-compose.yaml
-  DB_HOST: localhost
-  DB_PORT: 5432
-  DB_USER: hruser
-  DB_PASS: hrpass
-  DB_NAME: hrdb
-  BACKUP_FILE: backup/hrdb_dump.sql
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: self-hosted
-    defaults:
-      run:
-        shell: powershell
-
     steps:
-      - name: 📥 Checkout Repository
+      - name: 🧾 Checkout Code
         uses: actions/checkout@v4
 
-      - name: 🧹 Stop and Remove Old Containers
+      - name: 🛑 Stop Old Containers (PowerShell)
+        shell: pwsh
         run: |
           Write-Host "Stopping old containers (if any)..."
-          docker-compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE down || Write-Host "Nothing to stop."
+          try {
+            docker compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE down
+          } catch {
+            Write-Warning "Teardown failed or not needed"
+          }
 
-      - name: 🚀 Build and Start Services
+      - name: 🛠️ Build & Start Stack
+        shell: pwsh
         run: |
-          Write-Host "Starting fresh containers..."
-          docker-compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE up -d --build `
+          Write-Host "Building and starting containers..."
+          docker compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE up -d --build `
             db backend frontend prometheus grafana node-exporter loki promtail swagger nginx
           Start-Sleep -Seconds 30
 
-      - name: 🩺 Check DB Readiness
-        run: |
-          Write-Host "Waiting for database to become available..."
-          $maxAttempts = 10
-          $success = $false
-          for ($i = 0; $i -lt $maxAttempts; $i++) {
-            $result = docker exec hrapp-db pg_isready -U $env:DB_USER
-            if ($result -like "*accepting connections*") {
-              $success = $true
-              break
-            }
-            Start-Sleep -Seconds 5
-          }
-          if (-Not $success) {
-            throw "Database not ready after $maxAttempts attempts"
-          }
+      - name: ✅ Health Check - List Containers
+        shell: pwsh
+        run: docker ps
 
-      - name: 🧠 Restore DB If Empty
+      - name: 📦 Export Logs (Optional)
+        shell: pwsh
         run: |
-          Write-Host "Checking if database is empty..."
-          $tableCount = docker exec hrapp-db psql -U $env:DB_USER -d $env:DB_NAME -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"
-          if ([int]$tableCount -eq 0) {
-            Write-Host "Restoring backup..."
-            docker exec -i hrapp-db psql -U $env:DB_USER -d $env:DB_NAME < $env:BACKUP_FILE
-          } else {
-            Write-Host "Database already has tables, skipping restore."
-          }
-
-      - name: ✅ Health Check (Docker Status)
-        run: |
-          docker ps
-
-      - name: 💾 Backup Latest DB Dump
-        run: |
-          Write-Host "Taking DB backup..."
-          if (-Not (Test-Path "backup")) {
-            New-Item -ItemType Directory -Path "backup" | Out-Null
-          }
-          docker exec hrapp-db pg_dump -U $env:DB_USER -d $env:DB_NAME > backup/hrdb_dump.sql
+          Write-Host "Exporting container logs..."
+          mkdir logs
+          docker compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE logs > logs/docker.log
