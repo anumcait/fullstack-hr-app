@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🛑 Stop Old Containers (PowerShell)
-        shell: pwsh
+        shell: powershell
         run: |
           Write-Host "Stopping old containers (if any)..."
           try {
@@ -27,7 +27,7 @@ jobs:
           }
 
       - name: 🛠️ Build & Start Stack
-        shell: pwsh
+        shell: powershell
         run: |
           Write-Host "Building and starting containers..."
           docker compose -p $env:COMPOSE_PROJECT -f $env:COMPOSE_FILE up -d --build `
@@ -35,11 +35,11 @@ jobs:
           Start-Sleep -Seconds 30
 
       - name: ✅ Health Check - List Containers
-        shell: pwsh
+        shell: powershell
         run: docker ps
 
       - name: 📦 Export Logs (Optional)
-        shell: pwsh
+        shell: powershell
         run: |
           Write-Host "Exporting container logs..."
           mkdir logs
