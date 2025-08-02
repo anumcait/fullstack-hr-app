@@ -28,7 +28,7 @@ A complete **HR management system** built with **React 19**, **Node.js**, **Sequ
 ---
 
 ## 📂 Project Structure
-
+```
 fullstack-hr-app/
 ├── frontend/ # React application (Vite)
 ├── backend/ # Node.js API with Sequelize
